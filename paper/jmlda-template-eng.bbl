@@ -1,0 +1,458 @@
+%% BioMed_Central_Bib_Style_v1.01
+
+\begin{thebibliography}{26}
+% BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
+\ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
+\ifx \binits  \undefined \def \binits#1{#1}\fi
+\ifx \bauthor  \undefined \def \bauthor#1{#1}\fi
+\ifx \batitle  \undefined \def \batitle#1{#1}\fi
+\ifx \bjtitle  \undefined \def \bjtitle#1{#1}\fi
+\ifx \bvolume  \undefined \def \bvolume#1{\textbf{#1}}\fi
+\ifx \byear  \undefined \def \byear#1{#1}\fi
+\ifx \bissue  \undefined \def \bissue#1{#1}\fi
+\ifx \bfpage  \undefined \def \bfpage#1{#1}\fi
+\ifx \blpage  \undefined \def \blpage #1{#1}\fi
+\ifx \burl  \undefined \def \burl#1{\textsf{#1}}\fi
+\ifx \doiurl  \undefined \def \doiurl#1{\url{https://doi.org/#1}}\fi
+\ifx \betal  \undefined \def \betal{\textit{et al.}}\fi
+\ifx \binstitute  \undefined \def \binstitute#1{#1}\fi
+\ifx \binstitutionaled  \undefined \def \binstitutionaled#1{#1}\fi
+\ifx \bctitle  \undefined \def \bctitle#1{#1}\fi
+\ifx \beditor  \undefined \def \beditor#1{#1}\fi
+\ifx \bpublisher  \undefined \def \bpublisher#1{#1}\fi
+\ifx \bbtitle  \undefined \def \bbtitle#1{#1}\fi
+\ifx \bedition  \undefined \def \bedition#1{#1}\fi
+\ifx \bseriesno  \undefined \def \bseriesno#1{#1}\fi
+\ifx \blocation  \undefined \def \blocation#1{#1}\fi
+\ifx \bsertitle  \undefined \def \bsertitle#1{#1}\fi
+\ifx \bsnm \undefined \def \bsnm#1{#1}\fi
+\ifx \bsuffix \undefined \def \bsuffix#1{#1}\fi
+\ifx \bparticle \undefined \def \bparticle#1{#1}\fi
+\ifx \barticle \undefined \def \barticle#1{#1}\fi
+\bibcommenthead
+\ifx \bconfdate \undefined \def \bconfdate #1{#1}\fi
+\ifx \botherref \undefined \def \botherref #1{#1}\fi
+\ifx \url \undefined \def \url#1{\textsf{#1}}\fi
+\ifx \bchapter \undefined \def \bchapter#1{#1}\fi
+\ifx \bbook \undefined \def \bbook#1{#1}\fi
+\ifx \bcomment \undefined \def \bcomment#1{#1}\fi
+\ifx \oauthor \undefined \def \oauthor#1{#1}\fi
+\ifx \citeauthoryear \undefined \def \citeauthoryear#1{#1}\fi
+\ifx \endbibitem  \undefined \def \endbibitem {}\fi
+\ifx \bconflocation  \undefined \def \bconflocation#1{#1}\fi
+\ifx \arxivurl  \undefined \def \arxivurl#1{\textsf{#1}}\fi
+\csname PreBibitemsHook\endcsname
+
+%%% 1
+\bibitem[\protect\citeauthoryear{Karniadakis et~al.}{2021}]{PINNreview}
+\begin{barticle}
+\bauthor{\bsnm{Karniadakis}, \binits{G.E.}},
+\bauthor{\bsnm{Kevrekidis}, \binits{I.G.}},
+\bauthor{\bsnm{Lu}, \binits{L.}},
+\bauthor{\bsnm{Perdikaris}, \binits{P.}},
+\bauthor{\bsnm{Wang}, \binits{S.}},
+\bauthor{\bsnm{Yang}, \binits{L.}}:
+\batitle{Physics-informed machine learning}.
+\bjtitle{Nature Reviews Physics}
+\bvolume{3}(\bissue{6}),
+\bfpage{422}--\blpage{440}
+(\byear{2021})
+\doiurl{10.1038/s42254-021-00314-5}
+\end{barticle}
+\endbibitem
+
+%%% 2
+\bibitem[\protect\citeauthoryear{Cuomo et~al.}{2022}]{PINNsurvey}
+\begin{barticle}
+\bauthor{\bsnm{Cuomo}, \binits{S.}},
+\bauthor{\bsnm{Di~Cola}, \binits{V.S.}},
+\bauthor{\bsnm{Giampaolo}, \binits{F.}},
+\bauthor{\bsnm{Rozza}, \binits{G.}},
+\bauthor{\bsnm{Raissi}, \binits{M.}},
+\bauthor{\bsnm{Piccialli}, \binits{F.}}:
+\batitle{Scientific machine learning through physics-informed neural networks: Where we are and what's next}.
+\bjtitle{Journal of Scientific Computing}
+\bvolume{92}(\bissue{3}),
+\bfpage{88}
+(\byear{2022})
+\doiurl{10.1007/s10915-022-01939-z}
+\end{barticle}
+\endbibitem
+
+%%% 3
+\bibitem[\protect\citeauthoryear{Greydanus et~al.}{2019}]{HNN}
+\begin{bchapter}
+\bauthor{\bsnm{Greydanus}, \binits{S.}},
+\bauthor{\bsnm{Dzamba}, \binits{M.}},
+\bauthor{\bsnm{Yosinski}, \binits{J.}}:
+\bctitle{Hamiltonian neural networks}.
+In: \beditor{\bsnm{Wallach}, \binits{H.}},
+\beditor{\bsnm{Larochelle}, \binits{H.}},
+\beditor{\bsnm{Beygelzimer}, \binits{A.}},
+\beditor{\bsnm{Alch\'{e}-Buc}, \binits{F.}},
+\beditor{\bsnm{Fox}, \binits{E.}},
+\beditor{\bsnm{Garnett}, \binits{R.}} (eds.)
+\bbtitle{Advances in Neural Information Processing Systems},
+vol. \bseriesno{32}
+(\byear{2019}).
+\burl{https://proceedings.neurips.cc/paper_files/paper/2019/file/26cd8ecadce0d4efd6cc8a8725cbd1f8-Paper.pdf}
+\end{bchapter}
+\endbibitem
+
+%%% 4
+\bibitem[\protect\citeauthoryear{Cranmer et~al.}{2019}]{article}
+\begin{bchapter}
+\bauthor{\bsnm{Cranmer}, \binits{M.}},
+\bauthor{\bsnm{Greydanus}, \binits{S.}},
+\bauthor{\bsnm{Hoyer}, \binits{S.}},
+\bauthor{\bsnm{Battaglia}, \binits{P.}},
+\bauthor{\bsnm{Spergel}, \binits{D.}},
+\bauthor{\bsnm{Ho}, \binits{S.}}:
+\bctitle{Lagrangian neural networks}.
+In: \bbtitle{ICLR 2020 Workshop on Integration of Deep Neural Models and Differential Equations}
+(\byear{2019}).
+\burl{https://openreview.net/forum?id=iE8tFa4Nq}
+\end{bchapter}
+\endbibitem
+
+%%% 5
+\bibitem[\protect\citeauthoryear{Tucker et~al.}{2024}]{quantumHNN}
+\begin{botherref}
+\oauthor{\bsnm{Tucker}, \binits{K.}},
+\oauthor{\bsnm{Rege}, \binits{A.K.}},
+\oauthor{\bsnm{Smith}, \binits{C.}},
+\oauthor{\bsnm{Monteleoni}, \binits{C.}},
+\oauthor{\bsnm{Albash}, \binits{T.}}:
+Hamiltonian Learning using Machine Learning Models Trained with Continuous Measurements.
+arXiv
+(2024).
+\doiurl{10.48550/ARXIV.2404.05526}
+\end{botherref}
+\endbibitem
+
+%%% 6
+\bibitem[\protect\citeauthoryear{Kaltsas}{2025}]{HDNN}
+\begin{barticle}
+\bauthor{\bsnm{Kaltsas}, \binits{D.A.}}:
+\batitle{Constrained hamiltonian systems and physics-informed neural networks: Hamilton-dirac neural networks}.
+\bjtitle{Physical Review E}
+\bvolume{111}(\bissue{2}),
+\bfpage{025301}
+(\byear{2025})
+\doiurl{10.1103/PhysRevE.111.025301}
+\end{barticle}
+\endbibitem
+
+%%% 7
+\bibitem[\protect\citeauthoryear{Bhattoo et~al.}{2023}]{LGNN}
+\begin{barticle}
+\bauthor{\bsnm{Bhattoo}, \binits{R.}},
+\bauthor{\bsnm{Ranu}, \binits{S.}},
+\bauthor{\bsnm{Krishnan}, \binits{N.M.A.}}:
+\batitle{Learning the dynamics of particle-based systems with lagrangian graph neural networks}.
+\bjtitle{Machine Learning: Science and Technology}
+\bvolume{4}(\bissue{1}),
+\bfpage{015003}
+(\byear{2023})
+\doiurl{10.1088/2632-2153/acb03e}
+\end{barticle}
+\endbibitem
+
+%%% 8
+\bibitem[\protect\citeauthoryear{Wessels et~al.}{2020}]{fluid-LNN}
+\begin{barticle}
+\bauthor{\bsnm{Wessels}, \binits{H.}},
+\bauthor{\bsnm{Weißenfels}, \binits{C.}},
+\bauthor{\bsnm{Wriggers}, \binits{P.}}:
+\batitle{The neural particle method – an updated lagrangian physics informed neural network for computational fluid dynamics}.
+\bjtitle{Computer Methods in Applied Mechanics and Engineering}
+\bvolume{368},
+\bfpage{113127}
+(\byear{2020})
+\doiurl{10.1016/j.cma.2020.113127}
+\end{barticle}
+\endbibitem
+
+%%% 9
+\bibitem[\protect\citeauthoryear{Gruber and Tezaur}{2023}]{HNNreduce}
+\begin{barticle}
+\bauthor{\bsnm{Gruber}, \binits{A.}},
+\bauthor{\bsnm{Tezaur}, \binits{I.}}:
+\batitle{Canonical and noncanonical hamiltonian operator inference}.
+\bjtitle{Computer Methods in Applied Mechanics and Engineering}
+\bvolume{416},
+\bfpage{116334}
+(\byear{2023})
+\doiurl{10.1016/j.cma.2023.116334}
+\end{barticle}
+\endbibitem
+
+%%% 10
+\bibitem[\protect\citeauthoryear{Olivieri et~al.}{2024}]{PINNsoundwave}
+\begin{botherref}
+\oauthor{\bsnm{Olivieri}, \binits{M.}},
+\oauthor{\bsnm{Karakonstantis}, \binits{X.}},
+\oauthor{\bsnm{Pezzoli}, \binits{M.}},
+\oauthor{\bsnm{Antonacci}, \binits{F.}},
+\oauthor{\bsnm{Sarti}, \binits{A.}},
+\oauthor{\bsnm{Fernandez-Grande}, \binits{E.}}:
+Physics-Informed Neural Network for Volumetric Sound field Reconstruction of Speech Signals.
+arXiv
+(2024).
+\doiurl{10.48550/ARXIV.2403.09524}
+\end{botherref}
+\endbibitem
+
+%%% 11
+\bibitem[\protect\citeauthoryear{Han et~al.}{2021}]{HNNadapt}
+\begin{barticle}
+\bauthor{\bsnm{Han}, \binits{C.-D.}},
+\bauthor{\bsnm{Glaz}, \binits{B.}},
+\bauthor{\bsnm{Haile}, \binits{M.}},
+\bauthor{\bsnm{Lai}, \binits{Y.-C.}}:
+\batitle{Adaptable hamiltonian neural networks}.
+\bjtitle{Physical Review Research}
+\bvolume{3}(\bissue{2}),
+\bfpage{023156}
+(\byear{2021})
+\doiurl{10.1103/physrevresearch.3.023156}
+\end{barticle}
+\endbibitem
+
+%%% 12
+\bibitem[\protect\citeauthoryear{Zakwan et~al.}{2023}]{HNNrobustclass}
+\begin{barticle}
+\bauthor{\bsnm{Zakwan}, \binits{M.}},
+\bauthor{\bsnm{Xu}, \binits{L.}},
+\bauthor{\bsnm{Ferrari-Trecate}, \binits{G.}}:
+\batitle{Robust classification using contractive hamiltonian neural odes}.
+\bjtitle{IEEE Control Systems Letters}
+\bvolume{7},
+\bfpage{145}--\blpage{150}
+(\byear{2023})
+\doiurl{10.1109/lcsys.2022.3186959}
+\end{barticle}
+\endbibitem
+
+%%% 13
+\bibitem[\protect\citeauthoryear{Ismail~Fawaz et~al.}{2019}]{TCSreview}
+\begin{barticle}
+\bauthor{\bsnm{Ismail~Fawaz}, \binits{H.}},
+\bauthor{\bsnm{Forestier}, \binits{G.}},
+\bauthor{\bsnm{Weber}, \binits{J.}},
+\bauthor{\bsnm{Idoumghar}, \binits{L.}},
+\bauthor{\bsnm{Muller}, \binits{P.-A.}}:
+\batitle{Deep learning for time series classification: a review}.
+\bjtitle{Data Mining and Knowledge Discovery}
+\bvolume{33}(\bissue{4}),
+\bfpage{917}--\blpage{963}
+(\byear{2019})
+\doiurl{10.1007/s10618-019-00619-1}
+\end{barticle}
+\endbibitem
+
+%%% 14
+\bibitem[\protect\citeauthoryear{Ismail~Fawaz et~al.}{2020}]{InceptionTime}
+\begin{barticle}
+\bauthor{\bsnm{Ismail~Fawaz}, \binits{H.}},
+\bauthor{\bsnm{Lucas}, \binits{B.}},
+\bauthor{\bsnm{Forestier}, \binits{G.}},
+\bauthor{\bsnm{Pelletier}, \binits{C.}},
+\bauthor{\bsnm{Schmidt}, \binits{D.F.}},
+\bauthor{\bsnm{Weber}, \binits{J.}},
+\bauthor{\bsnm{Webb}, \binits{G.I.}},
+\bauthor{\bsnm{Idoumghar}, \binits{L.}},
+\bauthor{\bsnm{Muller}, \binits{P.-A.}},
+\bauthor{\bsnm{Petitjean}, \binits{F.}}:
+\batitle{Inceptiontime: Finding alexnet for time series classification}.
+\bjtitle{Data Mining and Knowledge Discovery}
+\bvolume{34}(\bissue{6}),
+\bfpage{1936}--\blpage{1962}
+(\byear{2020})
+\doiurl{10.1007/s10618-020-00710-y}
+\end{barticle}
+\endbibitem
+
+%%% 15
+\bibitem[\protect\citeauthoryear{Ruiz et~al.}{2020}]{MTCSreview}
+\begin{barticle}
+\bauthor{\bsnm{Ruiz}, \binits{A.P.}},
+\bauthor{\bsnm{Flynn}, \binits{M.}},
+\bauthor{\bsnm{Large}, \binits{J.}},
+\bauthor{\bsnm{Middlehurst}, \binits{M.}},
+\bauthor{\bsnm{Bagnall}, \binits{A.}}:
+\batitle{The great multivariate time series classification bake off: a review and experimental evaluation of recent algorithmic advances}.
+\bjtitle{Data Mining and Knowledge Discovery}
+\bvolume{35}(\bissue{2}),
+\bfpage{401}--\blpage{449}
+(\byear{2020})
+\doiurl{10.1007/s10618-020-00727-3}
+\end{barticle}
+\endbibitem
+
+%%% 16
+\bibitem[\protect\citeauthoryear{Rahman et~al.}{2023}]{MTCSindustrial}
+\begin{barticle}
+\bauthor{\bsnm{Rahman}, \binits{M.M.}},
+\bauthor{\bsnm{Farahani}, \binits{M.A.}},
+\bauthor{\bsnm{Wuest}, \binits{T.}}:
+\batitle{Multivariate time-series classification of critical events from industrial drying hopper operations: A deep learning approach}.
+\bjtitle{Journal of Manufacturing and Materials Processing}
+\bvolume{7}(\bissue{5}),
+\bfpage{164}
+(\byear{2023})
+\doiurl{10.3390/jmmp7050164}
+\end{barticle}
+\endbibitem
+
+%%% 17
+\bibitem[\protect\citeauthoryear{Seto et~al.}{2015}]{MTCSactivity}
+\begin{bchapter}
+\bauthor{\bsnm{Seto}, \binits{S.}},
+\bauthor{\bsnm{Zhang}, \binits{W.}},
+\bauthor{\bsnm{Zhou}, \binits{Y.}}:
+\bctitle{Multivariate time series classification using dynamic time warping template selection for human activity recognition}.
+In: \bbtitle{2015 IEEE Symposium Series on Computational Intelligence}.
+\bpublisher{IEEE}, \blocation{???}
+(\byear{2015}).
+\doiurl{10.1109/ssci.2015.199}
+\end{bchapter}
+\endbibitem
+
+%%% 18
+\bibitem[\protect\citeauthoryear{Dempster et~al.}{2020}]{ROCKET}
+\begin{barticle}
+\bauthor{\bsnm{Dempster}, \binits{A.}},
+\bauthor{\bsnm{Petitjean}, \binits{F.}},
+\bauthor{\bsnm{Webb}, \binits{G.I.}}:
+\batitle{Rocket: exceptionally fast and accurate time series classification using random convolutional kernels}.
+\bjtitle{Data Mining and Knowledge Discovery}
+\bvolume{34}(\bissue{5}),
+\bfpage{1454}--\blpage{1495}
+(\byear{2020})
+\doiurl{10.1007/s10618-020-00701-z}
+\end{barticle}
+\endbibitem
+
+%%% 19
+\bibitem[\protect\citeauthoryear{Dempster et~al.}{2021}]{MiniRocket}
+\begin{bchapter}
+\bauthor{\bsnm{Dempster}, \binits{A.}},
+\bauthor{\bsnm{Schmidt}, \binits{D.F.}},
+\bauthor{\bsnm{Webb}, \binits{G.I.}}:
+\bctitle{Minirocket: A very fast (almost) deterministic transform for time series classification}.
+In: \bbtitle{Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery and Data Mining},
+pp. \bfpage{248}--\blpage{257}.
+\bpublisher{ACM}, \blocation{???}
+(\byear{2021}).
+\doiurl{10.1145/3447548.3467231}
+\end{bchapter}
+\endbibitem
+
+%%% 20
+\bibitem[\protect\citeauthoryear{Tan et~al.}{2022}]{MultiRocket}
+\begin{barticle}
+\bauthor{\bsnm{Tan}, \binits{C.W.}},
+\bauthor{\bsnm{Dempster}, \binits{A.}},
+\bauthor{\bsnm{Bergmeir}, \binits{C.}},
+\bauthor{\bsnm{Webb}, \binits{G.I.}}:
+\batitle{Multirocket: multiple pooling operators and transformations for fast and effective time series classification}.
+\bjtitle{Data Mining and Knowledge Discovery}
+\bvolume{36}(\bissue{5}),
+\bfpage{1623}--\blpage{1646}
+(\byear{2022})
+\doiurl{10.1007/s10618-022-00844-1}
+\end{barticle}
+\endbibitem
+
+%%% 21
+\bibitem[\protect\citeauthoryear{Middlehurst et~al.}{2024}]{BakeOffRedux}
+\begin{barticle}
+\bauthor{\bsnm{Middlehurst}, \binits{M.}},
+\bauthor{\bsnm{Sch{\"a}fer}, \binits{P.}},
+\bauthor{\bsnm{Bagnall}, \binits{A.}}:
+\batitle{Bake off redux: a review and experimental evaluation of recent time series classification algorithms}.
+\bjtitle{Data Mining and Knowledge Discovery}
+\bvolume{38}(\bissue{4}),
+\bfpage{1958}--\blpage{2031}
+(\byear{2024})
+\doiurl{10.1007/s10618-024-01022-1}
+\end{barticle}
+\endbibitem
+
+%%% 22
+\bibitem[\protect\citeauthoryear{Reiss}{2012}]{misc_pamap2_physical_activity_monitoring_231}
+\begin{botherref}
+\oauthor{\bsnm{Reiss}, \binits{A.}}:
+PAMAP2 Physical Activity Monitoring.
+UCI Machine Learning Repository
+(2012).
+\doiurl{10.24432/C5NW2H}
+\end{botherref}
+\endbibitem
+
+%%% 23
+\bibitem[\protect\citeauthoryear{Landau and Lifshitz}{1976}]{LandauMechanics}
+\begin{bbook}
+\bauthor{\bsnm{Landau}, \binits{L.D.}},
+\bauthor{\bsnm{Lifshitz}, \binits{E.M.}}:
+\bbtitle{Mechanics},
+\bedition{3}rd edn.
+\bsertitle{Course of Theoretical Physics},
+vol. \bseriesno{1}.
+\bpublisher{Butterworth-Heinemann},
+\blocation{Oxford}
+(\byear{1976})
+\end{bbook}
+\endbibitem
+
+%%% 24
+\bibitem[\protect\citeauthoryear{Galimberti et~al.}{2023}]{HNNnonvangrad}
+\begin{barticle}
+\bauthor{\bsnm{Galimberti}, \binits{C.L.}},
+\bauthor{\bsnm{Furieri}, \binits{L.}},
+\bauthor{\bsnm{Xu}, \binits{L.}},
+\bauthor{\bsnm{Ferrari-Trecate}, \binits{G.}}:
+\batitle{Hamiltonian deep neural networks guaranteeing nonvanishing gradients by design}.
+\bjtitle{IEEE Transactions on Automatic Control}
+\bvolume{68}(\bissue{5}),
+\bfpage{3155}--\blpage{3162}
+(\byear{2023})
+\doiurl{10.1109/tac.2023.3239430}
+\end{barticle}
+\endbibitem
+
+%%% 25
+\bibitem[\protect\citeauthoryear{Lu et~al.}{2021}]{DeepONet}
+\begin{barticle}
+\bauthor{\bsnm{Lu}, \binits{L.}},
+\bauthor{\bsnm{Jin}, \binits{P.}},
+\bauthor{\bsnm{Pang}, \binits{G.}},
+\bauthor{\bsnm{Zhang}, \binits{Z.}},
+\bauthor{\bsnm{Karniadakis}, \binits{G.E.}}:
+\batitle{Learning nonlinear operators via deeponet based on the universal approximation theorem of operators}.
+\bjtitle{Nature Machine Intelligence}
+\bvolume{3}(\bissue{3}),
+\bfpage{218}--\blpage{229}
+(\byear{2021})
+\doiurl{10.1038/s42256-021-00302-5}
+\end{barticle}
+\endbibitem
+
+%%% 26
+\bibitem[\protect\citeauthoryear{Kontolati et~al.}{2024}]{LatentDeepONet}
+\begin{barticle}
+\bauthor{\bsnm{Kontolati}, \binits{K.}},
+\bauthor{\bsnm{Goswami}, \binits{S.}},
+\bauthor{\bsnm{Karniadakis}, \binits{G.E.}},
+\bauthor{\bsnm{Shields}, \binits{M.D.}}:
+\batitle{Learning nonlinear operators in latent spaces for real-time predictions of complex dynamics in physical systems}.
+\bjtitle{Nature Communications}
+\bvolume{15}(\bissue{1}),
+\bfpage{5101}
+(\byear{2024})
+\doiurl{10.1038/s41467-024-49411-w}
+\end{barticle}
+\endbibitem
+
+\end{thebibliography}

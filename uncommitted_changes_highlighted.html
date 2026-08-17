@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Uncommitted changes (highlighted)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family: monospace; padding:16px; background:#fff}
+    .header{color:#444; font-weight:700}
+    .hunk{color:#333}
+    .added{background: #fffd8a} /* yellow */
+    .removed{background: #fffd8a; color:#333; text-decoration: line-through}
+    .meta{color:#0066cc}
+    pre{white-space:pre-wrap; word-break:break-word}
+    .filepath{font-weight:700}
+  </style>
+</head>
+<body>
+  <h2>Uncommitted changes (highlighted in yellow)</h2>
+  <p>File: <span class="filepath">uncommitted.diff</span></p>
+  <div id="content"><pre>Loading...</pre></div>
+
+<script>
+async function loadDiff(){
+  try{
+    const r = await fetch('./uncommitted.diff');
+    if(!r.ok) throw new Error('Cannot fetch uncommitted.diff');
+    const txt = await r.text();
+    const lines = txt.split('\n');
+    const out = lines.map(l=>{
+      if(l.startsWith('diff --git')) return '<div class="header">'+escapeHtml(l)+'</div>';
+      if(l.startsWith('index ')|| l.startsWith('--- ')|| l.startsWith('+++ ')) return '<div class="meta">'+escapeHtml(l)+'</div>';
+      if(l.startsWith('@@')) return '<div class="hunk">'+escapeHtml(l)+'</div>';
+      if(l.startsWith('+') && !l.startsWith('+++')) return '<div class="added">'+escapeHtml(l)+'</div>';
+      if(l.startsWith('-') && !l.startsWith('---')) return '<div class="removed">'+escapeHtml(l)+'</div>';
+      return '<div>'+escapeHtml(l)+'</div>';
+    }).join('\n');
+    document.getElementById('content').innerHTML = '<pre>'+out+'</pre>';
+  }catch(e){
+    document.getElementById('content').innerHTML = '<pre>Error loading diff: '+e.message+'\n\nYou can also open uncommitted.diff alongside this file in the editor.</pre>';
+  }
+}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+loadDiff();
+</script>
+</body>
+</html>

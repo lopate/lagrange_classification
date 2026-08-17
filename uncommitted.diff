@@ -1,0 +1,294 @@
+diff --git a/paper/Terentyev2024Lagrangian.tex b/paper/Terentyev2024Lagrangian.tex
+index 5b32c9a..8851023 100644
+--- a/paper/Terentyev2024Lagrangian.tex
++++ b/paper/Terentyev2024Lagrangian.tex
+@@ -57,12 +57,12 @@ The dynamical system's state and its trajectory are constructed with multivariat
+ The Lagrangian network reconstructs system trajectories where the conservation of energy and the Euler-Lagrange equations hold. The LNN  uses an independent set of coordinates to specify the state of the system. In the Lagrangian formalism, the dynamic system is defined by the Lagrangian function.  The generalized coordinates in Lagrangian mechanics specify the state of the system. The minimum number of independent variables (generalized coordinates) necessary for a description of the state of the mechanical system is chosen. The Lagrangian of the system is a continuous differentiable and square-integrable function. Its Euler-Lagrange equation has a unique solution. 
+ The dynamic system is described by the Euler-Lagrange equation,
+ \begin{equation}
+-\frac{\partial L}{\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=Q_x=0.
+-      \label{eq:euler_larange}
++\frac{\partial L}{\partial\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=0.
++    \label{eq:euler_larange}
+ \end{equation}
+ For its unique solution, the necessary and sufficient condition is 
+ \begin{equation}
+-    \det \left \| \frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}} \right \|_{j,k=1}^{n} \neq 0.
++    \det\!\bigg(\big[\frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}}\big]_{j,k=1}^{n}\bigg) \neq 0.
+ \end{equation}
+ The equivalent physical definition of the Lagrangian is the difference between the kinetic~$T$ and potential~$V$ energy,
+ \begin{equation}
+@@ -105,7 +105,7 @@ The loss function of the predicted acceleration~$\hat{\mathbf{y}}_i$ given the p
+ \begin{equation}
+  \mathcal{L}(\textbf{w}) = \mathcal{L}(\mathbf{w} | D) = \frac{1}{T}\sum_{i=1}^{T} \| \hat{\mathbf{y}}_i - \mathbf{y}_i \|_2^2.
+ \end{equation}
+-To fit the parameters of the neural network one hes to solve the optimization problem
++To fit the parameters of the neural network one has to solve the optimization problem
+ \begin{equation} 
+ \label{eq:opt_task}
+ \textbf{w}_j^* = \arg\min_{\mathbf{w} \in \mathbb{W}} \bigl( \mathcal{L}(\textbf{w}) \bigr). 
+@@ -267,7 +267,7 @@ approximated
+ C \cdot \sum_{i_1 = 1, ..., i_n = 1}^{N, ..., N} \frac{A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}{N \cdot .... \cdot N} =  C \cdot \overline{|A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}.
+ \end{split}
+ \]
+-Since we are solving a classification problem, let us compare to each Lagrangian~$g$ its class~$\mathcal{A}_{i}$. Thus, we have a finite family of non-intersecting closed closed singular sets~$\mathcal{A}$ in the space~$\mathbb{L}$ of Lagrangians, where each family represents a class corresponding to a human motion.
++Since we are solving a classification problem, let us compare to each Lagrangian~$g$ its class~$\mathcal{A}_{i}$. Thus, we have a finite family of non-intersecting closed singular sets~$\mathcal{A}$ in the space~$\mathbb{L}$ of Lagrangians, where each family represents a class corresponding to a human motion.
+ 
+ \begin{theorem} \label{main_theorem}
+ Let there be a finite family of non-intersecting closed convex sets~$\mathcal{A}$ in the
+@@ -411,7 +411,7 @@ it.
+ Studies were conducted on the Physical Activity Monitoring (PAMAP2) dataset \cite{dataset}.
+ The
+ dataset contains recordings from three sets of gyroscopes and accelerometers: attached to the
+-wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects: $M = 9$. . Number of activity types(classes): $K = 24$, each activity lasted 2-4 minutes \cite{dataset}, sampling frequency 100 Hz.
++wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects: $M = 9$. Number of activity types (classes): $K = 12$ — lying, sitting, standing, ironing, vacuum cleaning, ascending stairs, descending stairs, walking, Nordic walking, cycling, running, rope jumping; each activity lasted 2-4 minutes \cite{dataset}, sampling frequency 100 Hz.
+ 
+ 
+ Of all the sensors presented in the dataset, gyroscopes were selected as the most suitable for classification. walking, running, cycling and non-moving state. Data processing consists of recovering the gaps in the data, associated with the absence of signals from gyroscopes, as well as obtaining the values of
+@@ -423,7 +423,7 @@ Some data in the rows is lost due to communication problems. To recover the seri
+ \quad
+ \left|E(\ddot{q}_k)\right|\le \frac{h^2}{6}\mathbf{q}^{(4)},
+ \]
+-and the Cortes formula for integration 
++ and Simpson's rule (a Newton--Cotes formula) for integration 
+ \[
+ \begin{split}
+ \mathbf{q}_k = \int_{0}^{t_k}{\dot{\mathbf{q}}(t)d\mathbf{x}}\approx\frac{h}{3}\sum_{k=1}^{N-1}{\Big(\dot{\mathbf{q}}_{k-1}+4\dot{\mathbf{q}}_k+\dot{\mathbf{q}}_{k+1}\Big)},
+diff --git a/paper/jmlda-template-eng.tex b/paper/jmlda-template-eng.tex
+index d8f326e..984e705 100644
+--- a/paper/jmlda-template-eng.tex
++++ b/paper/jmlda-template-eng.tex
+@@ -57,12 +57,10 @@
+ physically-informed neural networks] % short title for page headings, not necessary if a full title fits the headings
+     {Classification of trajectories of dynamic systems using
+ physically-informed neural networks} % full title
+-\author*[1]{\fnm{V.} \sur{Strizhov}}\email{iauthor@gmail.com}
+-\author*[2]{\fnm{A.} \sur{Terentyev}}\email{iauthor@gmail.com}
++\author*[1]{\fnm{V.} \sur{Strizhov}}\email{sasha-terentev@outlook.com}
++\author*[1]{\fnm{A.} \sur{Terentyev}}\email{strijov@forecsys.ru}
+ 
+-\affil*[1]{\orgdiv{Department}, \orgname{Organization}, \orgaddress{\street{Street}, \city{City}, \postcode{100190}, \state{State}, \country{Country}}}
+-
+-\affil[2]{\orgdiv{Department}, \orgname{Organization}, \orgaddress{\street{Street}, \city{City}, \postcode{10587}, \state{State}, \country{Country}}}
++\affil*[1]{\orgname{Forecsys LLC}, \orgaddress{\city{Moscow}, \country{Russia}}}
+ 
+ \abstract
+ {The paper proposes a method for multivariate time series classification using information about their physical nature. The paper proposes a classification model for multidimensional trajectories of physical systems. In comparison to models that use assumptions about statistical properties of trajectories only, but do not use  prior information, the presented model includes information about the physical nature of the system. It makes the classification stable to random non-physical changes in trajectories. To account for these changes we train the model on augmented samples. We propose to classify not the trajectories themselves, but the dynamical systems given by the Lagrangians corresponding to these trajectories. The Lagrangian is reconstructed using physics-informed Lagrangian neural networks. We introduce a norm in the space of Lagrangians and use it in metric classification. 
+@@ -87,17 +85,17 @@ Mostly convolutional neural networks are used for multivariate classifications,
+ 
+ This paper solves the problem of dynamic system trajectory classification. It proposes to use Lagrangian neural networks (LNN) for low-dimensional trajectories. Each trajectory refers to the Lagrangian of the system parameterized by the LNN. The issue of mapping the Lagrangian of the system along the trajectory is analyzed in~\cite{article}.
+ 
+-The dynamical system's state and its trajectory are constructed with multivariate time serties~\cite{TCSreview}. Deep learning methods, developed for the univariate time series, like AlexNet, ResNet, InceptionTime, TapNet~\cite{TCSreview}\cite{MTCSreview} need architecture updates for the data acquired from several sensors~\cite{MTCSindustrial} including three-axis accelerometer and gyroscope~\cite{MTCSactivity} and updates for the knowledge about the physical description of the dynamic system. The state-of-art approach in this field is using randomized kernels ROCKET, however it doesn't outperform others on all datasets~\cite{TCSreview}\cite{ROCKET}.
++The dynamical system's state and its trajectory are constructed with multivariate time series~\cite{TCSreview}. Deep learning methods, developed for the univariate time series, like AlexNet, ResNet, InceptionTime, TapNet~\cite{TCSreview}\cite{MTCSreview} need architecture updates for the data acquired from several sensors~\cite{MTCSindustrial} including three-axis accelerometer and gyroscope~\cite{MTCSactivity} and updates for the knowledge about the physical description of the dynamic system. The state-of-the-art approach in this field is using randomized kernels ROCKET; however it does not outperform other methods on all datasets~\cite{TCSreview}\cite{ROCKET}.
+ 
+ The Lagrangian network reconstructs system trajectories where the conservation of energy and the Euler-Lagrange equations hold. The LNN  uses an independent set of coordinates to specify the state of the system. In the Lagrangian formalism, the dynamic system is defined by the Lagrangian function.  The generalized coordinates in Lagrangian mechanics specify the state of the system. The minimum number of independent variables (generalized coordinates) necessary for a description of the state of the mechanical system is chosen. The Lagrangian of the system is a continuous differentiable and square-integrable function. Its Euler-Lagrange equation has a unique solution. 
+ The dynamic system is described by the Euler-Lagrange equation,
+ \begin{equation}
+-\frac{\partial L}{\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=Q_x=0.
+-      \label{eq:euler_larange}
++\frac{\partial L}{\partial\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=0.
++    \label{eq:euler_larange}
+ \end{equation}
+ For its unique solution, the necessary and sufficient condition is 
+ \begin{equation}
+-    \det \left \| \frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}} \right \|_{j,k=1}^{n} \neq 0.
++    \det\!\bigg(\big[\frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}}\big]_{j,k=1}^{n}\bigg) \neq 0.
+ \end{equation}
+ \begin{figure}
+ \centering
+@@ -137,9 +135,9 @@ where~$\mathbf{q}_t$ are the generalized coordinates of the system, $\dot{\mathb
+ 
+ For Lagrangians of different motions of a physical system, we assume the compactness hypothesis: the Lagrangians which correspond to different motions lie in different compact and separable subsets. We label these subsets as the classes in the space of trajectory models. We assume the parameters of these models are also separable for different classes. The computational experiment uses the PAMAP2 dataset~\cite{misc_pamap2_physical_activity_monitoring_231}. The dataset contains trajectories of human movements during common daily activities like cooking, jogging, and shopping.
+ 
+-The
++    The
+ dataset contains recordings from three sets of gyroscopes and accelerometers: attached to the
+-wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects is 9. Number of activity types(classes) is 24, each activity lasted 2-4 minutes ~\cite{misc_pamap2_physical_activity_monitoring_231}, sampling frequency 100 Hz. This dataset provides data from different part of dynamic system. Which provides an opportunity to consider the performance of the algorithm on a complex dynamic system. Since that, we consider general coordinates for the system consist of coordinates of all sensors that are used in experiments as one vector.
++wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects is 9. Number of activity types (classes) is 12: lying, sitting, standing, ironing, vacuum cleaning, ascending stairs, descending stairs, walking, Nordic walking, cycling, running, rope jumping; each activity lasted 2-4 minutes ~\cite{misc_pamap2_physical_activity_monitoring_231}, sampling frequency 100 Hz. This dataset provides data from different part of dynamic system. Which provides an opportunity to consider the performance of the algorithm on a complex dynamic system. Since that, we consider general coordinates for the system consist of coordinates of all sensors that are used in experiments as one vector.
+ 
+ \section{Formulation of the regression problem for a time series and
+ Lagrangian neural networks}
+@@ -174,7 +172,7 @@ The loss function of the predicted acceleration~$\hat{\mathbf{y}}_i$ given the p
+ \begin{equation}
+  \mathcal{L}(\textbf{w}) = \mathcal{L}(\mathbf{w} | D) = \frac{1}{T}\sum_{i=1}^{T} \| \hat{\mathbf{y}}_i - \mathbf{y}_i \|_2^2.
+ \end{equation}
+-To fit the parameters of the neural network one hes to solve the optimization problem
++To fit the parameters of the neural network one has to solve the optimization problem
+ \begin{equation} 
+ \label{eq:opt_task}
+ \textbf{w}_j^* = \arg\min_{\mathbf{w} \in \mathbb{W}} \bigl( \mathcal{L}(\textbf{w}) \bigr). 
+@@ -194,7 +192,7 @@ Instead of parametrizing dynamic system by Neural network
+ \quad
+ \text{where}
+ \quad
+-\mathbf{w} \text{~-- parameters of neural netowork,}
++\mathbf{w} \text{~-- parameters of neural network,}
+ \label{eq:model}
+ \end{equation}
+ 
+@@ -399,35 +397,17 @@ approximated
+ By definition of $L_2$-norm
+ \begin{equation}
+ \label{eq:l2_norm_approx_1}
+-\|(A(L), \mathbf{H}(L))\|_2 = \sqrt{\int |A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2  d\Omega} 
+-\end{equation}
+-
+-If integral \label{eq:l2_norm_approx_1} is defined, then Riemann sum's converge to integral, when cell shrinks to zero, $\|x\| \to 0$
++Let \(\Omega\subset\mathbb{R}^{2r}\) be a compact sampling domain (in coordinates and velocities) and denote
+ \begin{equation}
+-\label{eq:l2_norm_approx_2}
+-\begin{split}
+-\sum_{\substack{i_1 = 1, ..., i_n = 1\\ i = (i_1, ..., i_n)}}^{N, ..., N} |A(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)|^2  + \|\mathbf{H}(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)\|_2^2) \frac{\Delta X_1 \cdot ... \cdot X_n}{N \cdot .... \cdot N}
+-\\
+-\overset{N \to \infty}{\longrightarrow}\|(A(L), \mathbf{H}(L))| \Omega\|_2
+-\overset{\mu(\Omega) \to \infty}{\longrightarrow} \|(A(L), \mathbf{H}(L))\|_2,
+-\end{split}
++\|(A(L),\mathbf{H}(L))\|_{L^2(\Omega)} = \left(\int_{\Omega} \bigl(|A(L)(\mathbf{q},\dot{\mathbf{q}})|^2 + \|\mathbf{H}(L)(\mathbf{q},\dot{\mathbf{q}})\|_2^2\bigr)\,d\mu(\mathbf{q},\dot{\mathbf{q}})\right)^{1/2}.
+ \end{equation}
+-where cells defined on uniform grid over $\Omega = [-\Delta X_1/2,\Delta X_1/2]  \times ... \times  [-\Delta X_n/2,\Delta X_n/2]$ and $\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)$ are coordinates of centers of cells.
+-
+-Rewrite expression \ref{eq:l2_norm_approx_2} using the fact $\mu(\Omega) = \Delta X_1 \cdot ... \cdot X_n$
+-\begin{equation}
+-\label{eq:l2_norm_approx_main}
+-\centering
+-\begin{split}
+-\sum_{\substack{i_1 = 1, ..., i_n = 1\\ i = (i_1, ..., i_n)}}^{N, ..., N} |A(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)|^2  + \|\mathbf{H}(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)\|_2^2) \frac{\Delta X_1 \cdot ... \cdot X_n}{N \cdot .... \cdot N} =
+-\\
+-\mu(\Omega) \cdot \sum_{i_1 = 1, ..., i_n = 1}^{N, ..., N} \frac{A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}{N \cdot .... \cdot N} =  
+-\\ 
+-\mu(\Omega) \cdot \overline{|A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}.
+-\end{split}   
++If the integrand is integrable on \(\Omega\), the integral can be approximated by a Riemann sum over sample points \(\{(\mathbf{q}_i,\dot{\mathbf{q}}_i)\}_{i=1}^N\subset\Omega\):
++\begin{equation}\label{eq:l2_norm_approx_main}
++\|(A(L),\mathbf{H}(L))\|_{L^2(\Omega)} \approx \left(\frac{\mathrm{Vol}(\Omega)}{N} \sum_{i=1}^N \bigl(|A(L)(\mathbf{q}_i,\dot{\mathbf{q}}_i)|^2 + \|\mathbf{H}(L)(\mathbf{q}_i,\dot{\mathbf{q}}_i)\|_2^2\bigr)\right)^{1/2},
+ \end{equation}
++where \(\mathrm{Vol}(\Omega) = \mu(\Omega)\) is the Lebesgue measure of \(\Omega\). The sample points may be taken on a uniform grid or drawn randomly (Monte Carlo); both constructions converge to the integral as \(N\to\infty\) under standard regularity assumptions.
+ 
+-Since we are solving a classification problem, let us compare to each Lagrangian~$L_i$ its class~$\mathcal{A}_{k} = \{L_i| y_i = k\}$, where $y_i$ is the class label of Lagrangian. Thus, we have a finite family of non-intersecting closed closed singular sets~$\mathcal{A}$ in the space~$\mathbb{L}$ of Lagrangians, where each family represents a class corresponding to a human motion.
++Since we are solving a classification problem, let us compare to each Lagrangian~$L_i$ its class~$\mathcal{A}_{k} = \{L_i\,|\, y_i = k\}$, where $y_i$ is the class label of Lagrangian. Thus, we have a finite family of non-intersecting closed singular sets~$\mathcal{A}$ in the space~$\mathbb{L}$ of Lagrangians, where each family represents a class corresponding to a human motion.
+ 
+ \begin{theorem} \label{main_theorem}
+ Let there be a finite family of non-intersecting closed convex sets~$\mathcal{A}$ in the
+@@ -570,7 +550,7 @@ it.
+ Studies were conducted on the Physical Activity Monitoring (PAMAP2) dataset \cite{misc_pamap2_physical_activity_monitoring_231}.
+ The
+ dataset contains recordings from three sets of gyroscopes and accelerometers: attached to the
+-wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects: $M = 9$. . Number of activity types(classes): $K = 24$, each activity lasted 2-4 minutes \cite{misc_pamap2_physical_activity_monitoring_231}, sampling frequency 100 Hz.
++wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects: $M = 9$. Number of activity types (classes): $K = 12$ — lying, sitting, standing, ironing, vacuum cleaning, ascending stairs, descending stairs, walking, Nordic walking, cycling, running, rope jumping; each activity lasted 2-4 minutes \cite{misc_pamap2_physical_activity_monitoring_231}, sampling frequency 100 Hz.
+ 
+ 
+ Of all the sensors presented in the dataset, gyroscopes were selected as the most suitable for classification. walking, running, cycling and non-moving state. Data processing consists of recovering the gaps in the data, associated with the absence of signals from gyroscopes, as well as obtaining the values of
+@@ -582,16 +562,16 @@ Some data in the rows is lost due to communication problems. To recover the seri
+ \quad
+ \left|E(\ddot{q}_k)\right|\le \frac{h^2}{6}\mathbf{q}^{(4)},
+ \]
+-and the Cortes formula for integration 
++and Simpson's rule (a Newton--Cotes formula) for integration 
+ \[
+ \begin{split}
+-\mathbf{q}_k = \int_{0}^{t_k}{\dot{\mathbf{q}}(t)d\mathbf{x}}\approx\frac{h}{3}\sum_{k=1}^{N-1}{\Big(\dot{\mathbf{q}}_{k-1}+4\dot{\mathbf{q}}_k+\dot{\mathbf{q}}_{k+1}\Big)},
++\mathbf{q}_k = \int_{0}^{t_k}{\dot{\mathbf{q}}(t)\,dt}\approx\frac{h}{3}\sum_{k=1}^{N-1}{\Big(\dot{\mathbf{q}}_{k-1}+4\dot{\mathbf{q}}_k+\dot{\mathbf{q}}_{k+1}\Big)},
+ %\\
+ \quad
+ \left|E(\mathbf{q}_k)\right| \le \frac{(b-a)}{2880}h^4\text{max}\left|\mathbf{q}^{(4)}\left(\mathbf{x}\right)\right|.
+ \end{split}
+ \]
+-The resulting trajectories are passed as objects $\mathbf{X}_i = (\mathbf{q},\dot{\mathbf{q}})(t)_i$ and features $\mathbf{Y}_i = \ddot{\mathbf{q}}(t)_i$. The neural network presented in \cite{article} is trained on the $i$-th trajectory separately and an estimate of the Lagrangian $\hat{L}_i$, mapped to the $i$-th trajectory is obtained. his Lagrangian, defines the dynamical system and allows to recover the acceleration $\ddot{\mathbf{q}}(t)_i$. This yields a set of objects $\hat{L}_i$, and a set of labels $y_i$, where $y_i$ is the trajectory class $X_i$.
++The resulting trajectories are passed as objects $\mathbf{X}_i = (\mathbf{q},\dot{\mathbf{q}})(t)_i$ and features $\mathbf{Y}_i = \ddot{\mathbf{q}}(t)_i$. The neural network presented in \cite{article} is trained on the $i$-th trajectory separately and an estimate of the Lagrangian $\hat{L}_i$, mapped to the $i$-th trajectory, is obtained. This Lagrangian defines the dynamical system and allows recovery of the acceleration $\ddot{\mathbf{q}}(t)_i$. This yields a set of objects $\hat{L}_i$ and a set of labels $y_i$, where $y_i$ is the trajectory class $X_i$.
+ 
+ 
+ As a visualization and evaluation of trajectory recovery with the necessary precision, LNN predictions of acceleration $\ddot{\mathbf{q}}(t)$ for trajectories $(\mathbf{q}, \dot{\mathbf{q}})(t)$ were constructed
+diff --git a/paper/jmlda-template-rus.tex b/paper/jmlda-template-rus.tex
+index 36b81eb..f3e59c8 100644
+--- a/paper/jmlda-template-rus.tex
++++ b/paper/jmlda-template-rus.tex
+@@ -80,7 +80,7 @@
+ 
+ Уравнение Эйлера-Лагранжа имеет вид
+ \begin{equation}
+-    \frac{\partial L}{\mathbf{q}}\ -\ \frac{d}{dt}\ \frac{\partial L}{\partial\dot{\mathbf{q}}}=Q_x=0.
++\frac{\partial L}{\partial\mathbf{q}}\ -\ \frac{d}{dt}\ \frac{\partial L}{\partial\dot{\mathbf{q}}}=0. 
+ \end{equation}
+ 
+ Для того чтобы оно решалось однозначно необходимо и достаточно
+@@ -95,7 +95,7 @@ L\left(\mathbf{q},\ \dot{\mathbf{q}}\right) \ =\ T\left(\mathbf{q},\ \dot{\mathb
+ 
+ Динамика системы описывается системой уравнений Эйлера-Лагранжа:
+ \begin{equation}
+- \frac{\partial L}{\mathbf{q}}\ -\ \frac{d}{dt}\ \frac{\partial L}{\partial\dot{\mathbf{q}}}=Q_x=0. \label{eq:euler_larange}
++\frac{\partial L}{\partial\mathbf{q}}\ -\ \frac{d}{dt}\ \frac{\partial L}{\partial\dot{\mathbf{q}}}=0. \label{eq:euler_larange}
+ \end{equation}
+ 
+ Для лагранжианов физических систем утверждается гипотеза компактности: лагранжианы, отвечающие различным движениям, лежат в различных компактных и отделимых подмножествах-классах пространства моделируемых функций. На основе этого делается вывод, что векторы параметров функций, соответствующих различным классам, также компактны и отделимы в общем пространстве параметров. 
+@@ -261,7 +261,7 @@ S=\int_{t_{0}}^{t_{1}} L d t,
+ H = \nabla_{\dot{\mathbf{q}}\dot{\mathbf{q}}} L = \frac{\partial^{2} L}{\partial \dot{\mathbf{q}}^T \partial \dot{\mathbf{q}}}.
+ \end{equation}
+ \begin{remark} \label{remark1}
+-$det H \neq 0$ в любой точке, а значит он положительно определен. Данное условие необходимо, т. к. иначе существует малая вариация, при которой состояние системы не меняется. Следовательно, имеем не вырожденную систему линейных уравнений относительно ускорений.
++\det(H) \neq 0 в любой точке, а значит она невырождена. Данное условие необходимо, т. к. иначе существует малая вариация, при которой состояние системы не меняется. Следовательно, имеем не вырожденную систему линейных уравнений относительно ускорений.
+ 
+ \begin{equation}
+ \label{eq:linear_equation_acc}
+@@ -272,7 +272,7 @@ H\ddot{\mathbf{q}}
+ \end{remark}
+ 
+ \begin{lemma} \label{lemma1}
+-Если лагранжианы заданы на компакте, то существуют неотрицательные числа $a, b$ такие, что $det H \ge a$, а собственные значения матрицы $H$ не меньше b
++Если лагранжианы заданы на компакте, то существуют неотрицательные числа $a, b$ такие, что \(\det(H) \ge a\), а собственные значения матрицы $H$ не меньше $b$.
+ \end{lemma}
+ \begin{proof}
+ Предположим, что это не так. $H$ является непрерывной функцией, т.к. ее значения являются вторыми производными $L$, следовательно, $det H$ и собственные значения также непрерывны, а значит достигают своего минимума и максимума. Получили противоречия, т.к. матрица невырожденная во всех точках.
+@@ -319,13 +319,15 @@ $$ 0 = H(\delta L+\delta L)(\delta \ddot{q}) \Leftrightarrow \delta \ddot{q} = 0
+ Заметим, что в большинстве случаев  $\|H(\delta L)\|_2 = 0$, т.к. всегда можно выбрать координаты так, с помощью преобразования Лежандра, чтобы матрица Гессе была единичной, для этого необходимо перейти в канонические координаты, а значит достаточно сравнивать только первую часть нормы $\|A(L)\|_2$
+ \end{remark}
+ 
+-Данную норму вычислить точно в общем случае невозможно, т.к. для этого нужно посчитать интеграл функции на всей числовой прямой, но его можно приблизить
+-
+-$$\|(A(L). H(L))\|_2 = \sqrt{\int |A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|H(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2  d\Omega} \approx$$
+-
+-$$\sum_{i_1 = 1, ..., i_n = 1}^{N, ..., N} |A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2  + \|H(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2) \frac{\Delta X_1 \cdot ... \cdot X_n}{N \cdot .... \cdot N} =$$
+-
+-$$ C \cdot \sum_{i_1 = 1, ..., i_n = 1}^{N, ..., N} \frac{A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)^2 + \|H(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}{N \cdot .... \cdot N} =  C \cdot \overline{|A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|H(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}.$$
++Данную норму вычислить точно в общем случае невозможно, т.к. для этого требуется вычислить интеграл по компактной области \(\Omega\) в пространстве координат и скоростей. Обозначим
++\[
++\|(A(L), H(L))\|_{L^2(\Omega)} = \left(\int_{\Omega} \bigl(|A(L)(\mathbf{q},\dot{\mathbf{q}})|^2 + \|H(L)(\mathbf{q},\dot{\mathbf{q}})\|_2^2\bigr)\,d\mu(\mathbf{q},\dot{\mathbf{q}})\right)^{1/2}.
++\]
++Интеграл можно приближать выборкой точек \(\{(\mathbf{q}_i,\dot{\mathbf{q}}_i)\}_{i=1}^N\subset\Omega\):
++\begin{equation}
++\|(A(L), H(L))\|_{L^2(\Omega)} \approx \left(\frac{\mathrm{Vol}(\Omega)}{N}\sum_{i=1}^N \bigl(|A(L)(\mathbf{q}_i,\dot{\mathbf{q}}_i)|^2 + \|H(L)(\mathbf{q}_i,\dot{\mathbf{q}}_i)\|_2^2\bigr)\right)^{1/2},
++\end{equation}
++где \(\mathrm{Vol}(\Omega)=\mu(\Omega)\) — мера Лебега области \(\Omega\). При подходящих регулярности интегранда приближение сходится к интегралу при \(N\to\infty\).
+ 
+ Т.к. мы решаем задачу классификации, то сопоставим каждому лагранжиану g его класс $\mathcal{A}_{i}$. Таким образом мы имеем конечное семейство непересекающихся замкнутых выпуклых множеств $\mathcal{A}$ в пространстве  $\mathbb{L}$ лагранжианов, где каждое семейство представляет класс, соответствующий движению человека
+ 
+@@ -422,7 +424,7 @@ X  \ar@{->}[r]^-{LNN}  & \hat{L}=g(x|w) \ar@{->}[rr]^{{L_N^{i} = A(L)\left(\math
+  Целью эксперимента является классификация многомерных временных рядов, представленных в виде траекторий физических систем. Как подзадачи необходимо подтвердить гипотезу о компактности классов, подтвердить на практике выдвинутую теорию, что пространство лагранжианов можно нормировать предложенной норме и сэмплировать ее заранее заданным набором точек и с помощью нее построить классификатор.
+ 
+     Исследования проводились на наборе данных Physical Activity Monitoring(PAMAP2) \cite{dataset}.
+- Набор данных содержит записи с трех наборов гироскопов и акселерометров: закрепленных на запястье преобладающей руки, закрепленных на груди, закрепленных на локте преобладающей руки. Число испытуемых: $M = 9$. Число видов активностей(классов): $K = 24$, каждая активность длилась 2-4 минуты \cite{dataset}, частота сэмплирования 100 Гц.
++    Набор данных содержит записи с трех наборов гироскопов и акселерометров: закрепленных на запястье преобладающей руки, закрепленных на груди, закрепленных на локте преобладающей руки. Число испытуемых: $M = 9$. Число видов активностей (классов): $K = 12$ — лежание, сидение, стояние, глажение, уборка пылесосом, подъем по лестнице, спуск по лестнице, обычная ходьба, скандинавская ходьба, езда на велосипеде, бег, прыжки через скакалку \cite{dataset}, каждая активность длилась 2-4 минуты, частота сэмплирования 100 Гц.
+ 
+ 
+  Из всех датчиков представленных в наборе данных были выбраны гироскопы, как наиболее подходящие для классификации. ходьбы, бега, поездки на велосипеде и неподвижного состояния. Обработка данных состоит в восстановлении пропусков в данных, связанных с отсутствием сигналов от гироскопов, а также получению значению углов и угловых ускорений из угловых скоростей, полученных от гироскопов.
+@@ -432,7 +434,7 @@ X  \ar@{->}[r]^-{LNN}  & \hat{L}=g(x|w) \ar@{->}[rr]^{{L_N^{i} = A(L)\left(\math
+ \begin{equation}
+ \ddot{q}_k =\ \frac{\dot{q}_{k+1}\ -\ \dot{q}_{k-1}}{2h},\ \left|E(\ddot{q}_k)\right|\ \le \frac{h^2}{6}q^{(4)},
+ \end{equation}
+-для интегрирования используется формула Кортеса ~--
++для интегрирования используется правило Симпсона (метод Ньютона--Котеса) ~--
+ \begin{equation}
+ q_k = \int_{0}^{t_k}{\dot{q}(t)dx}\approx\frac{h}{3}\sum_{k\ =\ 1}^{N\ -\ 1}{\Big(\dot{q}_{k-1}+4\dot{q}_k+\dot{q}_{k+1}\Big)},
+ \end{equation}
+diff --git a/slides/main.tex b/slides/main.tex
+index c654b79..461a9ae 100644
+--- a/slides/main.tex
++++ b/slides/main.tex
+@@ -303,7 +303,7 @@ A(L)(\mathbf{q}, \dot{\mathbf{q}}) = \mathbf{H}(L)(\mathbf{q}, \dot{\mathbf{q}})
+ \begin{enumerate}
+     \item Записи с трех наборов гироскопов и акселерометров: закрепленных на запястье преобладающей руки, закрепленных на груди, закрепленных на локте преобладающей руки
+     \item Число испытуемых: $M = 9$
+-    \item Число видов активностей(классов): $K = 24$
++    \item Число видов активностей(классов): $K = 12$ -- лежание, сидение, стояние, глажение, уборка пылесосом, подъем по лестнице, спуск по лестнице, обычная ходьба, скандинавская ходьба, езда на велосипеде, бег, прыжки через скакалку
+     \item Каждая активность длилась 2-4 минуты
+     \item Частота сэмплирования 100 Гц
+ \end{enumerate}

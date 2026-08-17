@@ -57,12 +57,12 @@ The dynamical system's state and its trajectory are constructed with multivariat
 The Lagrangian network reconstructs system trajectories where the conservation of energy and the Euler-Lagrange equations hold. The LNN  uses an independent set of coordinates to specify the state of the system. In the Lagrangian formalism, the dynamic system is defined by the Lagrangian function.  The generalized coordinates in Lagrangian mechanics specify the state of the system. The minimum number of independent variables (generalized coordinates) necessary for a description of the state of the mechanical system is chosen. The Lagrangian of the system is a continuous differentiable and square-integrable function. Its Euler-Lagrange equation has a unique solution. 
 The dynamic system is described by the Euler-Lagrange equation,
 \begin{equation}
-\frac{\partial L}{\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=Q_x=0.
-      \label{eq:euler_larange}
+\frac{\partial L}{\partial\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=0.
+    \label{eq:euler_larange}
 \end{equation}
 For its unique solution, the necessary and sufficient condition is 
 \begin{equation}
-    \det \left \| \frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}} \right \|_{j,k=1}^{n} \neq 0.
+    \det\!\bigg(\big[\frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}}\big]_{j,k=1}^{n}\bigg) \neq 0.
 \end{equation}
 The equivalent physical definition of the Lagrangian is the difference between the kinetic~$T$ and potential~$V$ energy,
 \begin{equation}
@@ -105,7 +105,7 @@ The loss function of the predicted acceleration~$\hat{\mathbf{y}}_i$ given the p
 \begin{equation}
  \mathcal{L}(\textbf{w}) = \mathcal{L}(\mathbf{w} | D) = \frac{1}{T}\sum_{i=1}^{T} \| \hat{\mathbf{y}}_i - \mathbf{y}_i \|_2^2.
 \end{equation}
-To fit the parameters of the neural network one hes to solve the optimization problem
+To fit the parameters of the neural network one has to solve the optimization problem
 \begin{equation} 
 \label{eq:opt_task}
 \textbf{w}_j^* = \arg\min_{\mathbf{w} \in \mathbb{W}} \bigl( \mathcal{L}(\textbf{w}) \bigr). 
@@ -267,7 +267,7 @@ approximated
 C \cdot \sum_{i_1 = 1, ..., i_n = 1}^{N, ..., N} \frac{A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}{N \cdot .... \cdot N} =  C \cdot \overline{|A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}.
 \end{split}
 \]
-Since we are solving a classification problem, let us compare to each Lagrangian~$g$ its class~$\mathcal{A}_{i}$. Thus, we have a finite family of non-intersecting closed closed singular sets~$\mathcal{A}$ in the space~$\mathbb{L}$ of Lagrangians, where each family represents a class corresponding to a human motion.
+Since we are solving a classification problem, let us compare to each Lagrangian~$g$ its class~$\mathcal{A}_{i}$. Thus, we have a finite family of non-intersecting closed singular sets~$\mathcal{A}$ in the space~$\mathbb{L}$ of Lagrangians, where each family represents a class corresponding to a human motion.
 
 \begin{theorem} \label{main_theorem}
 Let there be a finite family of non-intersecting closed convex sets~$\mathcal{A}$ in the
@@ -411,7 +411,7 @@ it.
 Studies were conducted on the Physical Activity Monitoring (PAMAP2) dataset \cite{dataset}.
 The
 dataset contains recordings from three sets of gyroscopes and accelerometers: attached to the
-wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects: $M = 9$. . Number of activity types(classes): $K = 24$, each activity lasted 2-4 minutes \cite{dataset}, sampling frequency 100 Hz.
+wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects: $M = 9$. Number of activity types (classes): $K = 12$ — lying, sitting, standing, ironing, vacuum cleaning, ascending stairs, descending stairs, walking, Nordic walking, cycling, running, rope jumping; each activity lasted 2-4 minutes \cite{dataset}, sampling frequency 100 Hz.
 
 
 Of all the sensors presented in the dataset, gyroscopes were selected as the most suitable for classification. walking, running, cycling and non-moving state. Data processing consists of recovering the gaps in the data, associated with the absence of signals from gyroscopes, as well as obtaining the values of
@@ -423,7 +423,7 @@ Some data in the rows is lost due to communication problems. To recover the seri
 \quad
 \left|E(\ddot{q}_k)\right|\le \frac{h^2}{6}\mathbf{q}^{(4)},
 \]
-and the Cortes formula for integration 
+ and Simpson's rule (a Newton--Cotes formula) for integration 
 \[
 \begin{split}
 \mathbf{q}_k = \int_{0}^{t_k}{\dot{\mathbf{q}}(t)d\mathbf{x}}\approx\frac{h}{3}\sum_{k=1}^{N-1}{\Big(\dot{\mathbf{q}}_{k-1}+4\dot{\mathbf{q}}_k+\dot{\mathbf{q}}_{k+1}\Big)},

@@ -1,15 +1,11 @@
-%\documentclass[12pt, twoside]{article}
-%\documentclass[12pt]{article}%REMOVE AFTER
 \documentclass[sn-mathphys-num]{sn-jnl}
-\usepackage{a4wide}%REMOVE AFTER
 
-%\usepackage{jmlda}
 \usepackage[title]{appendix}%
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
-\usepackage[T2A]{fontenc}
+\usepackage[T1]{fontenc}
 \usepackage{lineno}
-\usepackage{amssymb,amsfonts,amsmath,mathtext}
+\usepackage{amssymb,amsfonts,amsmath}
 \usepackage{amsthm}
 \usepackage{array}
 %\usepackage{theorem}
@@ -39,8 +35,25 @@
 \graphicspath{{figures/}}   
 \newcommand{\hdir}{.}
 
+% sn-jnl.cls defines its theorem styles only if amsthm is already loaded when the class is
+% read, which is never the case. Define them here if they are missing, so that the theorem
+% headings follow the journal style instead of the amsthm default.
+\makeatletter
+\@ifundefined{th@thmstyleone}{%
+\newtheoremstyle{thmstyleone}%
+{18pt plus2pt minus1pt}{18pt plus2pt minus1pt}{\itshape}{0pt}{\bfseries}{}{.5em}%
+{\thmname{#1}\thmnumber{\@ifnotempty{#1}{ }\@upn{#2}}\thmnote{ {\the\thm@notefont(#3)}}}%
+\newtheoremstyle{thmstyletwo}%
+{18pt plus2pt minus1pt}{18pt plus2pt minus1pt}{\normalfont}{0pt}{\itshape}{}{.5em}%
+{\thmname{#1}\thmnumber{\@ifnotempty{#1}{ }{#2}}\thmnote{ {\the\thm@notefont(#3)}}}%
+\newtheoremstyle{thmstylethree}%
+{18pt plus2pt minus1pt}{18pt plus2pt minus1pt}{\normalfont}{0pt}{\bfseries}{}{.5em}%
+{\thmname{#1}\thmnumber{\@ifnotempty{#1}{ }\@upn{#2}}\thmnote{ {\the\thm@notefont(#3)}}}%
+}{}
+\makeatother
+
 \theoremstyle{thmstylethree}
-\newtheorem{definition}{Defenition}
+\newtheorem{definition}{Definition}
 \theoremstyle{thmstyletwo}
 \newtheorem{remark}{Remark}
 
@@ -57,17 +70,15 @@
 physically-informed neural networks] % short title for page headings, not necessary if a full title fits the headings
     {Classification of trajectories of dynamic systems using
 physically-informed neural networks} % full title
-\author*[1]{\fnm{V.} \sur{Strizhov}}\email{iauthor@gmail.com}
-\author*[2]{\fnm{A.} \sur{Terentyev}}\email{iauthor@gmail.com}
+\author*[1]{\fnm{A.} \sur{Terentyev}}\email{sasha-terentev@outlook.com}
+\author[1]{\fnm{V.} \sur{Strijov}}\email{strijov@forecsys.ru}
 
-\affil*[1]{\orgdiv{Department}, \orgname{Organization}, \orgaddress{\street{Street}, \city{City}, \postcode{100190}, \state{State}, \country{Country}}}
-
-\affil[2]{\orgdiv{Department}, \orgname{Organization}, \orgaddress{\street{Street}, \city{City}, \postcode{10587}, \state{State}, \country{Country}}}
+\affil*[1]{\orgname{Forecsys LLC}, \orgaddress{\city{Moscow}, \country{Russia}}}
 
 \abstract
-{The paper proposes a method for multivariate time series classification using information about their physical nature. The paper proposes a classification model for multidimensional trajectories of physical systems. In comparison to models that use assumptions about statistical properties of trajectories only, but do not use  prior information, the presented model includes information about the physical nature of the system. It makes the classification stable to random non-physical changes in trajectories. To account for these changes we train the model on augmented samples. We propose to classify not the trajectories themselves, but the dynamical systems given by the Lagrangians corresponding to these trajectories. The Lagrangian is reconstructed using physics-informed Lagrangian neural networks. We introduce a norm in the space of Lagrangians and use it in metric classification. 
+{The paper proposes a method for multivariate time series classification that uses prior information about the physical nature of the measured signals. In contrast to models that rely on assumptions about the statistical properties of trajectories only, the proposed model describes the mechanical system that generates a trajectory. We propose to classify not the trajectories themselves, but the dynamical systems given by the Lagrangians that correspond to these trajectories. The Lagrangian is reconstructed from measurements by a physics-informed Lagrangian neural network. We introduce a seminorm on the space of Lagrangians, show that the induced quotient identifies exactly those Lagrangians that generate the same accelerations, which is the classical gauge freedom of the Lagrangian, and use the induced metric for classification. Sampling this seminorm on a fixed set of probe points in the phase space yields a fixed-length vector representation of a trajectory, so that any vector classifier is applicable. In the computational experiment on the PAMAP2 human activity dataset the proposed representation separates the activity classes with the accuracy $0.946$ for the Gaussian process classifier. We also discuss the main practical limitation of the approach: the Lagrangian of every trajectory is currently recovered by a separate optimization problem.
 
-\textbf{Keywords}: \emph{physical system; Lagrangian; Lagrangian neural network; compactness hypothesis}}
+\textbf{Keywords}: \emph{multivariate time series classification; physical system; Lagrangian; Lagrangian neural network; compactness hypothesis}}
 
 %these fields are filled in by the journal editors
 %\doi{10.21469/22233792}
@@ -78,27 +89,32 @@ physically-informed neural networks} % full title
 
 \section{Introduction}
 
-The physics-informed neural networks (PINNs) combine the advantages of statistical and mathematical models. The first ones fit the measured data while the second ones take a physical description of the modeled system into account. The PINNs model conservation laws using data as the basis for predictions. Its architecture is analyzed in~\cite{PINNreview}. PINNs model principles of Hamiltonian~\cite{HNN}, Lagrangian dynamics~\cite{article}, including Hamiltonian mechanics with infinite-dimensional measurement space~\cite{quantumHNN} from
-quantum physics. The Lagrangian networks (LNN) also adapt to model microsystems using graph networks~\cite{LGNN}. The modifications of LNN model complex macro-systems such as fluids with the multi-particle approximation~\cite{fluid-LNN}. Also, PINNs allows dimension reduction using special operator~\cite{HNNreduce}. PINNs and LNNs also reconstruct sound~\cite{PINNsoundwave} taking into account wave equations. 
+The physics-informed neural networks (PINNs) combine the advantages of statistical and mathematical models. The first ones fit the measured data while the second ones take a physical description of the modeled system into account. The PINNs model conservation laws using data as the basis for predictions. Their architectures are analyzed in the reviews~\cite{PINNreview,PINNsurvey}. PINNs model principles of Hamiltonian~\cite{HNN}, Lagrangian dynamics~\cite{article}, including Hamiltonian mechanics with infinite-dimensional measurement space~\cite{quantumHNN} from
+quantum physics, and constrained Hamiltonian systems treated by the Dirac theory of constraints~\cite{HDNN}. The Lagrangian networks (LNN) also adapt to model microsystems using graph networks~\cite{LGNN}. The modifications of LNN model complex macro-systems such as fluids with the multi-particle approximation~\cite{fluid-LNN}. Also, PINNs allow dimension reduction using a special operator~\cite{HNNreduce}. PINNs and LNNs also reconstruct sound~\cite{PINNsoundwave} taking into account wave equations.
 
 The paper \cite{HNNadapt} introduces Hamiltonian neural networks to adapt a nonlinear variation of a parametrized system and determine the parameter of nonlinearity. This parameter is responsible for the chaotic nature of the system, acting as a measure of chaos and separating the chaotic system from the original system. The disadvantage of this classification is that one needs to know in advance the law by which these systems are separated. According to \cite{HNNrobustclass} Neural Ordinary Differential Equations (NODE) could be unstable due to changes in the initial data, and the error grows exponentially in time. The architecture of CH-NODE reduces these shortcomings but in general, the classification problem for systems with Lagrangian dynamic remains unexplored.
 
-Mostly convolutional neural networks are used for multivariate classifications, assuming that there are statistical relationships between the closest points of the time series~\cite{TCSreview}. These methods perform well in many tasks where these relationships are predominant. But for physical systems such methods are not suitable, and it is proposed to use knowledge about physical connections of systems, for the selected Lagrangian neural networks this knowledge is the law of conservation of energy.	
+Mostly convolutional neural networks are used for multivariate classification, under the assumption that there are statistical relationships between the neighbouring points of a time series~\cite{TCSreview}. These methods perform well in the tasks where such relationships are predominant. For physical systems, however, they discard the available prior information, and we propose to use the knowledge about the physical constraints of the system; for the Lagrangian neural networks used here this knowledge is the law of conservation of energy.
 
 This paper solves the problem of dynamic system trajectory classification. It proposes to use Lagrangian neural networks (LNN) for low-dimensional trajectories. Each trajectory refers to the Lagrangian of the system parameterized by the LNN. The issue of mapping the Lagrangian of the system along the trajectory is analyzed in~\cite{article}.
 
-The dynamical system's state and its trajectory are constructed with multivariate time serties~\cite{TCSreview}. Deep learning methods, developed for the univariate time series, like AlexNet, ResNet, InceptionTime, TapNet~\cite{TCSreview}\cite{MTCSreview} need architecture updates for the data acquired from several sensors~\cite{MTCSindustrial} including three-axis accelerometer and gyroscope~\cite{MTCSactivity} and updates for the knowledge about the physical description of the dynamic system. The state-of-art approach in this field is using randomized kernels ROCKET, however it doesn't outperform others on all datasets~\cite{TCSreview}\cite{ROCKET}.
+The dynamical system's state and its trajectory are constructed with multivariate time series~\cite{TCSreview}. Deep learning methods, developed for the univariate time series, like AlexNet, ResNet, InceptionTime~\cite{InceptionTime}, TapNet~\cite{TCSreview,MTCSreview} need architecture updates for the data acquired from several sensors~\cite{MTCSindustrial} including three-axis accelerometer and gyroscope~\cite{MTCSactivity} and updates for the knowledge about the physical description of the dynamic system. The strongest general-purpose approach in this field is the family of methods based on randomized convolutional kernels, ROCKET~\cite{ROCKET} and its faster and more accurate successors MiniRocket~\cite{MiniRocket} and MultiRocket~\cite{MultiRocket}. According to the recent large-scale comparison~\cite{BakeOffRedux}, MultiRocket combined with Hydra and the HIVE-COTE~2.0 ensemble are the most accurate methods over the archive of benchmark problems, yet no single method dominates on all datasets. All these methods treat a time series as a purely statistical object: they extract discriminative shapes and frequencies from the measurements, but they do not use any prior knowledge about the mechanics of the system that produced the measurements. The present paper studies the complementary option, when such prior knowledge is available.
 
-The Lagrangian network reconstructs system trajectories where the conservation of energy and the Euler-Lagrange equations hold. The LNN  uses an independent set of coordinates to specify the state of the system. In the Lagrangian formalism, the dynamic system is defined by the Lagrangian function.  The generalized coordinates in Lagrangian mechanics specify the state of the system. The minimum number of independent variables (generalized coordinates) necessary for a description of the state of the mechanical system is chosen. The Lagrangian of the system is a continuous differentiable and square-integrable function. Its Euler-Lagrange equation has a unique solution. 
+The Lagrangian network reconstructs system trajectories for which the conservation of energy and the Euler-Lagrange equations hold. The LNN uses an independent set of coordinates to specify the state of the system. In the Lagrangian formalism the dynamic system is defined by the Lagrangian function, and the generalized coordinates specify the state of the system. The minimum number of independent variables, the generalized coordinates, necessary to describe the state of the mechanical system is chosen; denote this number by~$r$. The Lagrangian of the system is assumed to be a twice continuously differentiable and square-integrable function, so that its Euler-Lagrange equation has a unique solution.
 The dynamic system is described by the Euler-Lagrange equation,
 \begin{equation}
-\frac{\partial L}{\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=Q_x=0.
-      \label{eq:euler_larange}
+\frac{\partial L}{\partial\mathbf{q}}-\frac{d}{dt}\frac{\partial L}{\partial\dot{\mathbf{q}}}=\mathbf{0}.
+    \label{eq:euler_larange}
 \end{equation}
-For its unique solution, the necessary and sufficient condition is 
+Equation~\eqref{eq:euler_larange} is written for a closed system, so that the generalized non-conservative forces are absent and the right-hand side is the zero vector of~$\mathbb{R}^r$.
+It is a system of~$r$ second-order differential equations. It is resolved with respect to the accelerations~$\ddot{\mathbf{q}}$ if and only if the matrix of the second derivatives of~$L$ with respect to the generalized velocities is non-degenerate,
 \begin{equation}
-    \det \left \| \frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}} \right \|_{j,k=1}^{n} \neq 0.
+\label{eq:nondegeneracy}
+    \det \mathbf{H}(L) \neq 0,
+    \quad\text{where}\quad
+    \mathbf{H}(L) = \left[ \frac{\partial^{2} L}{\partial \dot{q}_{j}\partial \dot{q}_{k}} \right]_{j,k=1}^{r} \in \mathbb{R}^{r \times r}.
 \end{equation}
+The matrix~$\mathbf{H}(L)$ is the Hessian of the Lagrangian with respect to the velocities. For a mechanical system with the kinetic energy $T = \tfrac12 \dot{\mathbf{q}}^\mathsf{T} \mathbf{M}(\mathbf{q}) \dot{\mathbf{q}}$ it coincides with the mass matrix $\mathbf{M}(\mathbf{q})$, and condition~\eqref{eq:nondegeneracy} states that the masses are non-zero, so that the Cauchy problem for the trajectory has a unique solution.
 \begin{figure}
 \centering
 \begin{tikzpicture}
@@ -127,57 +143,58 @@ node[pos=0.2, right] (q2){};
 \draw[->](qt)--(q2);
 \end{axis}
 \end{tikzpicture}
+\caption{Construction of the state of the dynamic system from the multivariate time series. The readings $a^k_x, a^k_y, a^k_z$ of the $k$-th sensor at the time-tick~$t$ are stacked into one vector~$\mathbf{q}_t$ of the generalized coordinates}
+\label{fig:trajectory_construction}
 \end{figure}
-The equivalent physical definition of the Lagrangian is the difference between the kinetic~$T$ and potential~$V$ energy,
+The equivalent physical definition of the Lagrangian is the difference between the kinetic~$T$ and the potential~$V$ energy,
 \begin{equation}
-L\left(\mathbf{q},\dot{\mathbf{q}}\right) = T\left(\mathbf{q},\dot{\mathbf{q}}\right)- V\left(\mathbf{q},\dot{\mathbf{q}}\right), 
+L\left(\mathbf{q},\dot{\mathbf{q}}\right) = T\left(\mathbf{q},\dot{\mathbf{q}}\right)- V\left(\mathbf{q}\right),
 \label{eq:L=T-V}
 \end{equation}
-where~$\mathbf{q}_t$ are the generalized coordinates of the system, $\dot{\mathbf{q}}_t$~are the generalized accelerations of the system, $L$~is the Lagrangian of the system.
+where~$\mathbf{q}$ is the vector of the generalized coordinates of the system, $\dot{\mathbf{q}}$~is the vector of the generalized velocities, and $L$~is the Lagrangian of the system. The construction of the vector~$\mathbf{q}_t$ from the readings of several sensors at the time-tick~$t$ is shown in Figure~\ref{fig:trajectory_construction}.
 
-For Lagrangians of different motions of a physical system, we assume the compactness hypothesis: the Lagrangians which correspond to different motions lie in different compact and separable subsets. We label these subsets as the classes in the space of trajectory models. We assume the parameters of these models are also separable for different classes. The computational experiment uses the PAMAP2 dataset~\cite{misc_pamap2_physical_activity_monitoring_231}. The dataset contains trajectories of human movements during common daily activities like cooking, jogging, and shopping.
+For Lagrangians of different motions of a physical system, we assume the compactness hypothesis: the Lagrangians which correspond to different motions lie in different compact and separable subsets. We label these subsets as the classes in the space of trajectory models. We assume the parameters of these models are also separable for different classes.
 
-The
-dataset contains recordings from three sets of gyroscopes and accelerometers: attached to the
-wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects is 9. Number of activity types(classes) is 24, each activity lasted 2-4 minutes ~\cite{misc_pamap2_physical_activity_monitoring_231}, sampling frequency 100 Hz. This dataset provides data from different part of dynamic system. Which provides an opportunity to consider the performance of the algorithm on a complex dynamic system. Since that, we consider general coordinates for the system consist of coordinates of all sensors that are used in experiments as one vector.
+The computational experiment uses the PAMAP2 Physical Activity Monitoring dataset~\cite{misc_pamap2_physical_activity_monitoring_231}. It contains recordings of nine subjects who performed a fixed protocol of daily physical activities. Each subject wore three inertial measurement units, placed on the wrist of the dominant arm, on the chest, and on the ankle of the dominant side; each unit contains a three-axis accelerometer, a three-axis gyroscope and a three-axis magnetometer sampled at $100$~Hz. The protocol part of the dataset, which is used here, contains $12$~activities: lying, sitting, standing, ironing, vacuum cleaning, ascending stairs, descending stairs, walking, Nordic walking, cycling, running, and rope jumping; each activity lasts $2$--$4$ minutes. The detailed description of the subset of activities used in the experiment is given in Section~\ref{sec:experiment}. Since the dataset provides measurements from several parts of one moving body, it gives an opportunity to evaluate the algorithm on a complex dynamic system. Therefore we stack the measurements of all the sensors used in the experiment into a single vector of generalized coordinates.
 
 \section{Formulation of the regression problem for a time series and
 Lagrangian neural networks}
 
-Assume that the Lagrangian~$L$  of the dynamical system corresponds to some specific trajectory. The Lagrangian defines a dynamical system for which the trajectory is constructed: substituting~$L$ into the
-Euler-Lagrange equation~\eqref{eq:euler_larange} yields a function relating the velocity and coordinates of the point to its acceleration. By solving the ODE system obtained by substituting~$L$ into~\eqref{eq:euler_larange}, with initial conditions, the initial point of the trajectory, the trajectory is fully recovered.  We identify each trajectory by some function~$L$ from the space with norm $L_2$ and identify the trajectory and the dynamical system, given by the function~$L$, which we further feed to the input of the classifier. The problem of recovery~$L$ we formulate as the regression problem.
+Assume that a Lagrangian~$L$ corresponds to a given trajectory of the dynamical system. The Lagrangian defines the dynamical system for which the trajectory is constructed: substituting~$L$ into the
+Euler-Lagrange equation~\eqref{eq:euler_larange} yields a function that relates the coordinates and the velocities of a point of the phase space to its acceleration. Solving this system of ordinary differential equations with the initial condition, which is the initial point of the trajectory, recovers the trajectory completely. We therefore identify each trajectory with a function~$L$ from a space equipped with the $L_2$-norm, and identify the trajectory with the dynamical system given by~$L$, which is then fed to the input of the classifier. The problem of recovering~$L$ from the measurements is formulated as a regression problem.
 
-Denote by~$X$ the trajectory of dimension~$r$ and length~$T$ 
+Denote by~$X$ the trajectory of dimension~$r$ and length~$T$,
 \begin{equation}
-X = [\mathbf{X}_1,\dots, \mathbf{X}_T] \quad \text{where} \quad \mathbf{x}_i = (\mathbf{q}_i, \dot{\mathbf{q}}_i), \quad  \text{and}\quad \dot{\mathbf{q}}_i \in \mathbb{R}^r
+X = [\mathbf{x}_1,\dots, \mathbf{x}_T], \quad \text{where} \quad \mathbf{x}_t = (\mathbf{q}_t, \dot{\mathbf{q}}_t) \in \mathbb{R}^{2r},
 \label{definition:trajectory}
 \end{equation}
-is the velocity at the $i$-th time-tick, and $\mathbf{q}_i \in \mathbb{R}^r$  is the coordinate at the $i$-th time-tick.
+$\mathbf{q}_t \in \mathbb{R}^r$ is the vector of generalized coordinates and $\dot{\mathbf{q}}_t \in \mathbb{R}^r$ is the vector of generalized velocities at the $t$-th time-tick.
 
-There given a sample set 
+There is given a sample set
 \begin{equation}
-D = \{(\mathbf{x}_i, \mathbf{y}_i)\}_{i=1}^N,
+D = \{(\mathbf{x}_t, \mathbf{y}_t)\}_{t=1}^{T},
 \label{eq:dataset}
 \end{equation}
-where $X$ are trajectories of dimension $r$ and length $T$, $\mathbf{y}_i = \ddot{\mathbf{q}}_i \in \mathbb{R}^r$ is the acceleration at the $i$-th time-tick. One has to find a function that predict acceleration for particular point, using previous data $D$
+where $\mathbf{y}_t = \ddot{\mathbf{q}}_t \in \mathbb{R}^r$ is the acceleration at the $t$-th time-tick. One has to find a function that predicts the acceleration at an arbitrary point of the phase space,
 \begin{equation}
-\hat{\mathbf{y}}  = \mathbf{f}(\mathbf{x} | D),
+\hat{\mathbf{y}}  = \mathbf{f}(\mathbf{x} \mid D),
 \quad
 \text{where}
 \quad
-\hat{Y} = \{\hat{\mathbf{y}}_i = \hat{\ddot{\mathbf{q}}}_i\}_{i=1}^N
-\label{eq:model}
+\hat{Y} = \{\hat{\mathbf{y}}_t = \hat{\ddot{\mathbf{q}}}_t\}_{t=1}^{T}
+\label{eq:model_general}
 \end{equation}
-is the predicted trajectory of the dynamic system. The function~$\mathbf{f}=\mathbf{f}(\mathbf{x} | \mathbf{w})$ with parameters~$\mathbf{w}$ is selected from the family  of Lagrangian neural networks.
+is the predicted dynamics of the system. The function~$\mathbf{f}=\mathbf{f}(\mathbf{x} \mid \mathbf{w})$ with parameters~$\mathbf{w}$ is selected from the family of Lagrangian neural networks.
 
-The loss function of the predicted acceleration~$\hat{\mathbf{y}}_i$ given the points $\mathbf{X}_i = (\mathbf{q}_i, \dot{\mathbf{q}}_i)$ of the trajectory $X$ is 
+The loss function of the predicted acceleration~$\hat{\mathbf{y}}_t$ given the points $\mathbf{x}_t = (\mathbf{q}_t, \dot{\mathbf{q}}_t)$ of the trajectory $X$ is
 \begin{equation}
- \mathcal{L}(\textbf{w}) = \mathcal{L}(\mathbf{w} | D) = \frac{1}{T}\sum_{i=1}^{T} \| \hat{\mathbf{y}}_i - \mathbf{y}_i \|_2^2.
+\label{eq:mse_loss}
+ \mathcal{L}(\mathbf{w}) = \mathcal{L}(\mathbf{w} \mid D) = \frac{1}{T}\sum_{t=1}^{T} \| \hat{\mathbf{y}}_t - \mathbf{y}_t \|_2^2.
 \end{equation}
-To fit the parameters of the neural network one hes to solve the optimization problem
-\begin{equation} 
+To fit the parameters of the neural network one has to solve the optimization problem
+\begin{equation}
 \label{eq:opt_task}
-\textbf{w}_j^* = \arg\min_{\mathbf{w} \in \mathbb{W}} \bigl( \mathcal{L}(\textbf{w}) \bigr). 
+\mathbf{w}^* = \arg\min_{\mathbf{w} \in \mathbb{W}} \bigl( \mathcal{L}(\mathbf{w}) \bigr).
 \end{equation}
 
 The algorithm of modeling the dynamic system with  Lagrangian is:
@@ -188,25 +205,25 @@ The algorithm of modeling the dynamic system with  Lagrangian is:
 	\item Solve the resulting system of differential equations.
 \end{enumerate}
 
-Instead of parametrizing dynamic system by Neural network
+This algorithm is not applicable when the analytical expressions for~$T$ and~$V$ are unknown. A straightforward alternative is to parametrize the map from the state to the acceleration directly by a neural network,
 \begin{equation}
-\hat{\mathbf{y}}  = \mathbf{f}(\mathbf{x} | \mathbf{w}),
+\hat{\mathbf{y}}  = \mathbf{f}(\mathbf{x} \mid \mathbf{w}),
 \quad
 \text{where}
 \quad
-\mathbf{w} \text{~-- parameters of neural netowork,}
+\mathbf{w}~\text{are the parameters of the neural network.}
+\label{eq:model_direct}
+\end{equation}
+Such a model reproduces the observed accelerations but does not respect the Lagrangian structure of the system, so its predictions are not guaranteed to conserve energy. To add the prior knowledge of the physics of the system we parametrize the Lagrangian instead of the accelerations,
+\begin{equation}
+\hat{L}  = f(\mathbf{x} \mid \mathbf{w}),
+\quad
+\text{where}
+\quad
+\hat{L}~\text{is the estimate of the Lagrangian at the point}~\mathbf{x}.
 \label{eq:model}
 \end{equation}
-
-To add prior knowledge of the physics of the system we model the Lagrangian:
-\begin{equation}
-\hat{L}  = f(\mathbf{x} | \mathbf{w}),
-\quad
-\text{where}
-\quad
-\hat{L}\text{~--estimation of Lagrangian at point}~\mathbf{x}.
-\end{equation}
-The key idea is to fit the Lagrangian~$L$ by a neural network~$f$, one has to obtain the expression of the Euler-Lagrange constraint and back propagate the error through this constraint:
+The key idea is to fit the Lagrangian~$L$ by a neural network~$f$: one has to obtain the expression of the Euler-Lagrange constraint and back propagate the error through this constraint,
 \begin{equation}
 \ddot{\mathbf{q}} =\left(\nabla_{\dot{\mathbf{q}} \dot{\mathbf{q}}} L\right)^{-1}\left[\nabla_{\mathbf{q}} L-\left(\nabla_{\dot{\mathbf{q}}\mathbf{q}} L\right) \dot{\mathbf{q}}\right].
 \label{eq:euler_larange_to_acc}
@@ -221,330 +238,332 @@ The diagram of the proposed neural network is
 %}
 \label{fig: LNN}
 \end{equation}
-The neural network $\hat{L} \colon (\mathbf{x} | \mathbf{w}) \to L_\mathbf{x}$ from~\eqref{fig: LNN} is a fully-connected network with three layers with the SoftPlus activation function.  One has to estimate $\hat{L}$ of the Lagrangian~$L$, differentiate $\hat{L}$ and obtain~$\nabla_{\dot{\mathbf{q}}\dot{\mathbf{q}}}\hat{L}$, $\dot{\mathbf{q}}\hat{L}$, and~$\nabla_{\dot{\mathbf{q}}\mathbf{q}} \hat{L}$ at point $\mathbf{x}$. To obtain the acceleration~$\hat{\mathbf{y}}$, the values of the gradients are substituted into the Euler-Lagrange equation \eqref{eq:euler_larange} in the form \eqref{eq:euler_larange_to_acc}, from which one has to estimate~$\hat{\mathbf{y}}$. For the given coordinates~$(\mathbf{q}, \dot{\mathbf{q}})$ we have a model with prior knowledge of the energy conservation which obtains the dynamics~$(\dot{\mathbf{q}}, \ddot{\mathbf{q}})$. 
+The neural network $\hat{L} \colon (\mathbf{x} \mid \mathbf{w}) \to L_\mathbf{x}$ from~\eqref{fig: LNN} maps the $2r$-dimensional state to a scalar. It is a fully-connected network with the Softplus activation function; the exact architecture is given in Section~\ref{sec:experiment}. The activation function must be at least twice continuously differentiable, since the second derivatives of the output with respect to the input enter the model~\eqref{eq:euler_larange_to_acc}; this is why the piecewise-linear ReLU is not applicable here and Softplus is used. Given the estimate~$\hat{L}$ of the Lagrangian~$L$, one differentiates $\hat{L}$ by automatic differentiation and obtains $\nabla_{\mathbf{q}}\hat{L}$, $\nabla_{\dot{\mathbf{q}}\dot{\mathbf{q}}}\hat{L}$, and~$\nabla_{\dot{\mathbf{q}}\mathbf{q}} \hat{L}$ at the point $\mathbf{x}$. To obtain the acceleration~$\hat{\mathbf{y}}$, the values of these derivatives are substituted into the Euler-Lagrange equation~\eqref{eq:euler_larange} written in the form~\eqref{eq:euler_larange_to_acc}. The gradient of the loss~\eqref{eq:mse_loss} is then propagated back through the whole computational graph, including the differentiation operators, to the parameters~$\mathbf{w}$. For the given coordinates~$(\mathbf{q}, \dot{\mathbf{q}})$ we thus have a model with the prior knowledge of energy conservation which recovers the dynamics~$(\dot{\mathbf{q}}, \ddot{\mathbf{q}})$.
 
-\section{Approximation of the norm in Lagrangian space}
-We assume the Lagrangians of trajectories are compact. 
+\section{Approximation of the norm in the Lagrangian space}
+We assume that the sets of the Lagrangians which correspond to one class of trajectories are compact and pairwise separable.
 %This assumption is based on the fact that different muscle groups produce different human movements. And similar ones are based on similar ones. Therefore, different in nature movements will form different mechanical systems and vice versa. Hence the hypothesis naturally follows. It remains to test this hypothesis. For this purpose, it is necessary to clarify the terms mentioned in the first paragraph.
-Denote by~$\mathbb{L}$ the functional Lagrangian space:
-\[ 
-\hat{L} =  \mathbf{x} \to L_x, \quad g \in \mathbb{L},
-\] 
-where~$\mathbf{x} \in \mathbb{R}^{2 \times r}$ is the vector of generalized coordinates and velocities, $L \in \mathbb{R}$ is the value of the Lagrangian of the dynamic system. The parametric family of functions~\eqref{eq:model} approximate the Lagrangian
+Denote by~$\mathbb{L}$ the functional Lagrangian space,
 \[
- \mathbb{L}_{\epsilon} = \{ \hat{L}^{(\epsilon)} \colon (\mathbf{x} | \mathbf{w}) \to \hat{L}(\mathbf{x}) \mid \mathbf{x} \in \mathbb{R}^{2 \times r}, \hat{L}(\mathbf{x})  \in \mathbb{R}\}, \quad \mathbb{L}_{\epsilon} \subset \mathbb{L},
+\mathbb{L} = \{ L \colon \Omega \to \mathbb{R} \},
+\quad
+\Omega \subset \mathbb{R}^{2r},
 \]
-where $\mathbf{w}$ is the vector of parameters of the approximation model, $\epsilon$~is the approximation accuracy.
+the set of twice continuously differentiable square-integrable functions on a compact domain~$\Omega$ of the phase space, where~$\mathbf{x} = (\mathbf{q}, \dot{\mathbf{q}}) \in \Omega$ is the vector of generalized coordinates and velocities and $L(\mathbf{x}) \in \mathbb{R}$ is the value of the Lagrangian of the dynamic system. The parametric family of functions~\eqref{eq:model} approximates the Lagrangian,
+\[
+ \mathbb{L}_{\epsilon} = \{ \hat{L} \colon (\mathbf{x} \mid \mathbf{w}) \to \hat{L}(\mathbf{x}) \mid \mathbf{x} \in \Omega, \; \hat{L}(\mathbf{x})  \in \mathbb{R},\; \mathbf{w} \in \mathbb{W}\}, \quad \mathbb{L}_{\epsilon} \subset \mathbb{L},
+\]
+where $\mathbf{w}$ is the vector of parameters of the approximation model and $\epsilon$~is the approximation accuracy.
 
-To construct the norm, obtain a system of equations  and calculate the accelerations. The Lagrangian formalism models the dynamic system with coordinates~$\mathbf{x}_t = (\mathbf{q}, \dot{\mathbf{q}})$. It starts in the state~$\mathbf{x}_0$ and ends in the state~$\mathbf{x}_1$. Define the action  
+To construct the seminorm we write out the system of equations from which the accelerations are calculated. The Lagrangian formalism models the dynamic system in the coordinates~$\mathbf{x}_t = (\mathbf{q}_t, \dot{\mathbf{q}}_t)$. The system starts in the state~$\mathbf{x}_{t_0}$ and ends in the state~$\mathbf{x}_{t_1}$. Define the action
 \[ %\begin{equation}
-S=\int_{t_{0}}^{t_{1}} L d t.
+S=\int_{t_{0}}^{t_{1}} L \, d t.
 \]% \end{equation}
-The action defines a path from~$\mathbf{x}_0$ to~$\mathbf{x}_1$ with the coordinates~$\mathbf{x}_t$ in the time interval $t_0, t_1$. The path minimizes the action $S$. %, i.e. $\delta S = 0$. 
-The solution is the Euler-Lagrange equation~\eqref{eq:euler_larange}. It defines the system dynamics. 
+The action is a functional on the paths from~$\mathbf{x}_{t_0}$ to~$\mathbf{x}_{t_1}$ in the time interval $[t_0, t_1]$, and the physical path is a stationary point of~$S$. %, i.e. $\delta S = 0$.
+The stationarity condition is the Euler-Lagrange equation~\eqref{eq:euler_larange}, which defines the dynamics of the system.
 %\begin{equation}
 %\frac{d}{d t} \frac{\partial L}{\partial \dot{\mathbf{q}}}=\frac{\partial L}{\partial \mathbf{q}}.
 %\end{equation}
-Obtain the acceleration of each component~$ \ddot{\mathbf{q}}$ from the chain rule. Write the time derivative through the coordinate derivatives:
+The accelerations~$\ddot{\mathbf{q}}$ are obtained from~\eqref{eq:euler_larange} by the chain rule. Expand the total time derivative through the partial derivatives with respect to the coordinates:
 \[
-\left(\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \right) \frac{d q}{d t}+\left(\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \right)  \frac{d \dot{\mathbf{q}}}{d t}
+\left(\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \right) \frac{d \mathbf{q}}{d t}+\left(\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \right)  \frac{d \dot{\mathbf{q}}}{d t}
 = \frac{\partial L}{\partial \mathbf{q}}.
 \]
-Rewrite the time derivatives for clarity
+Rewrite the time derivatives as the velocities and the accelerations:
 \[
-\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}}+\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \ddot{\mathbf{q}} 
+\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}}+\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \ddot{\mathbf{q}}
 = \frac{\partial L}{\partial \mathbf{q}}.
 \]
-Move the summands so that only the unknowns ones remain on the left side:
+Move the summands so that only the unknown ones remain on the left-hand side:
 \[
 \frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \ddot{\mathbf{q}} 
 = \frac{\partial L}{\partial \mathbf{q}}-\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}}.
 \]
-Divide both parts to get  the unknown variable:
+Solve the obtained system of linear equations with respect to the unknown accelerations:
 \[
-\ddot{\mathbf{q}} 
+\ddot{\mathbf{q}}
 = \left(\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L}{\partial \dot{\mathbf{q}}}\right)^{-1}\left[\frac{\partial L}{\partial \mathbf{q}}-\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}}\right].
 \]
-Rewrite the partial derivatives with nabla-notation:
+Rewrite the partial derivatives with the nabla-notation:
 \begin{equation}
-\ddot{\mathbf{q}} 
-= \left(\nabla_{\dot{\mathbf{q}} \dot{\mathbf{q}}} L\right)^{-1}\left[\nabla_{q} L-\left(\nabla_{\dot{\mathbf{q}}\mathbf{q}} L\right) \dot{\mathbf{q}}\right], \quad\text{where the Hessian}\quad
-\mathbf{H} = \nabla_{\dot{\mathbf{q}}\dot{\mathbf{q}}} L = \frac{\partial^{2} L}{\partial \dot{\mathbf{q}} \partial \dot{\mathbf{q}}}.
+\ddot{\mathbf{q}}
+= \left(\nabla_{\dot{\mathbf{q}} \dot{\mathbf{q}}} L\right)^{-1}\left[\nabla_{\mathbf{q}} L-\left(\nabla_{\dot{\mathbf{q}}\mathbf{q}} L\right) \dot{\mathbf{q}}\right], \quad\text{where the Hessian}\quad
+\mathbf{H}(L) = \nabla_{\dot{\mathbf{q}}\dot{\mathbf{q}}} L = \frac{\partial^{2} L}{\partial \dot{\mathbf{q}} \partial \dot{\mathbf{q}}}.
 \end{equation}
-
-The condition $\det \mathbf{H} \neq 0$ at any point  must be held since we assume non-degenerate system of linear equations.
+The inverse matrix exists by the non-degeneracy condition~\eqref{eq:nondegeneracy}. It is convenient to keep the system in the form which is linear in the accelerations and does not contain the inverse matrix,
 \begin{equation}
 \label{eq:linear_equation_acc}
-\mathbf{H}\ddot{\mathbf{q}} 
-= \frac{\partial L}{\partial \mathbf{q}}-\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}},
+\mathbf{H}(L)\, \ddot{\mathbf{q}} = A(L),
+\quad\text{where}\quad
+A(L) = \frac{\partial L}{\partial \mathbf{q}}-\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}}.
 \end{equation}
+Both $\mathbf{H}(L)$ and $A(L)$ are functions of the point $(\mathbf{q}, \dot{\mathbf{q}}) \in \Omega$: the first one takes values in $\mathbb{R}^{r \times r}$, the second one takes values in~$\mathbb{R}^{r}$. Equation~\eqref{eq:linear_equation_acc} is the object that carries all the information about the dynamics: two Lagrangians define the same dynamic system if and only if they produce the same pair of the coefficients of this system, up to the ambiguities described below.
 
 \begin{lemma} \label{lemma1}
-If the Lagrangians are set on a compact, then there exist non-negative numbers $a, b$ such that $\det \mathbf{H} \ge a$ and the eigenvalues of the matrix $\mathbf{H}$ are at least $b$.
+Let $\Omega \subset \mathbb{R}^{2r}$ be compact, let $L \in \mathbb{L}$ be twice continuously differentiable on~$\Omega$, and let $\det \mathbf{H}(L)(\mathbf{x}) \neq 0$ for every $\mathbf{x} \in \Omega$. Then there exist $a > 0$ and $b > 0$ such that for all $\mathbf{x} \in \Omega$
+\[
+\left| \det \mathbf{H}(L)(\mathbf{x}) \right| \ge a
+\quad\text{and}\quad
+\min_{j = 1, \dots, r} \left| \lambda_j \bigl( \mathbf{H}(L)(\mathbf{x}) \bigr) \right| \ge b,
+\]
+where $\lambda_1, \dots, \lambda_r$ are the eigenvalues of the matrix~$\mathbf{H}(L)(\mathbf{x})$.
 \end{lemma}
 \begin{proof}
-Assume the opposite: $\mathbf{H}$~is a continuous function since its values are the second derivatives of~$L$, hence~$\det \mathbf{H}$ and its eigenvalues are also continuous and hence reach their minimum and maximum. We obtained contradictions, since the matrix is nondegenerate at all points.
+The entries of $\mathbf{H}(L)$ are the second partial derivatives of~$L$, hence they are continuous on~$\Omega$. The determinant is a polynomial in the entries of a matrix, so the function $\mathbf{x} \mapsto |\det \mathbf{H}(L)(\mathbf{x})|$ is continuous on~$\Omega$. By the extreme value theorem a continuous real-valued function on a compact set attains its minimum, so there exists $\mathbf{x}_a \in \Omega$ with
+\[
+a := \left| \det \mathbf{H}(L)(\mathbf{x}_a) \right| = \min_{\mathbf{x} \in \Omega} \left| \det \mathbf{H}(L)(\mathbf{x}) \right|.
+\]
+By the assumption $\det \mathbf{H}(L)(\mathbf{x}_a) \neq 0$, hence $a > 0$.
+
+The matrix $\mathbf{H}(L)(\mathbf{x})$ is symmetric, so its eigenvalues are real and depend continuously on its entries. Therefore the function $\mathbf{x} \mapsto \min_{j} |\lambda_j(\mathbf{H}(L)(\mathbf{x}))|$ is continuous on~$\Omega$ and, by the same argument, attains its minimum~$b$ at some point $\mathbf{x}_b \in \Omega$. If $b$ were equal to zero, the matrix $\mathbf{H}(L)(\mathbf{x}_b)$ would have a zero eigenvalue and its determinant $\prod_j \lambda_j$ would vanish, which contradicts the assumption. Hence $b > 0$.
 \end{proof}
 
-
-Since the equations are invariant with respect to Lagrangian multiplication by a constant,
-we can choose Lagrangians for the systems such that the eigenvalues of the matrix~$\mathbf{H}$ are at
-least~$1$. Now we can see that a norm can be defined on the space~$\mathbb{L}$. 
+Lemma~\ref{lemma1} states that on a compact domain the non-degeneracy of the Hessian is uniform: the system~\eqref{eq:linear_equation_acc} is not only solvable at every point, but its condition number is bounded. This is the property that makes the numerical solution of~\eqref{eq:linear_equation_acc} stable and justifies the constraint introduced in Section~\ref{sec:loss}. The Euler-Lagrange equation is invariant with respect to the multiplication of the Lagrangian by a positive constant, therefore the scale of~$\mathbf{H}(L)$ is not determined by the trajectory, and we may fix it by requiring that the eigenvalues of~$\mathbf{H}(L)$ are at least~$1$.
 
 \begin{lemma} \label{lemma2}
-The following operator is linear:
-\[A (L) = \frac{\partial L}{\partial \mathbf{q}}-\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \mathbf{q}.
+The operators
+\[
+A (L) = \frac{\partial L}{\partial \mathbf{q}}-\frac{\partial}{\partial \mathbf{q}} \frac{\partial L}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}}
+\quad\text{and}\quad
+\mathbf{H}(L) = \frac{\partial^2 L}{\partial \dot{\mathbf{q}} \partial \dot{\mathbf{q}}}
 \]
+are linear in~$L$.
 \end{lemma}
 \begin{proof}
+Both operators are compositions of partial differentiation, which is linear, and of the multiplication by the fixed function~$\dot{\mathbf{q}}$, which does not depend on~$L$. Explicitly, for any $L_1, L_2 \in \mathbb{L}$ and any $\alpha, \beta \in \mathbb{R}$,
 \[
 \begin{split}
-A (L) = 
-\frac{\partial \alpha L_1 + \beta L_2}{\partial \mathbf{q}}-\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial \alpha L_1 + \beta L_2}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}} = 
-\frac{\partial \alpha L_1}{\partial \mathbf{q}} + \frac{\partial\beta L_2}{\partial \mathbf{q}} - \left(\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial \alpha L_1}{\partial \dot{\mathbf{q}}} + \frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial \beta L_2}{\partial \dot{\mathbf{q}}}\right) \dot{\mathbf{q}} = 
+A (\alpha L_1 + \beta L_2) =
+\frac{\partial (\alpha L_1 + \beta L_2)}{\partial \mathbf{q}}-\frac{\partial}{\partial \mathbf{q}} \frac{\partial (\alpha L_1 + \beta L_2)}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}} =
 \\
-\alpha\frac{\partial  L_1 }{\partial \mathbf{q}} + \beta\frac{L_2}{\partial \mathbf{q}} -  \alpha\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L_1}{\partial \dot{\mathbf{q}}}\dot{\mathbf{q}} -  \beta\frac{\partial}{\partial \dot{\mathbf{q}}} \frac{\partial L_2}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}} = 
-\alpha A(L) + \beta A(L).
+\alpha\frac{\partial  L_1 }{\partial \mathbf{q}} + \beta\frac{\partial L_2}{\partial \mathbf{q}} -  \alpha\frac{\partial}{\partial \mathbf{q}} \frac{\partial L_1}{\partial \dot{\mathbf{q}}}\dot{\mathbf{q}} -  \beta\frac{\partial}{\partial \mathbf{q}} \frac{\partial L_2}{\partial \dot{\mathbf{q}}} \dot{\mathbf{q}} =
+\alpha A(L_1) + \beta A(L_2),
 \end{split}
 \]
+and the same computation for the second derivatives gives $\mathbf{H}(\alpha L_1 + \beta L_2) = \alpha \mathbf{H}(L_1) + \beta \mathbf{H}(L_2)$.
 \end{proof}
 
-Introduce the norm~$L_2$ in the space~$\mathbb{L}$. It is semi-norm $\|L\|_L = \|(A(L), \mathbf{H}(L))\|_2$ since the linear operator preserves the absolute homogeneity and triangle inequality.
+Introduce the functional
+\begin{equation}
+\label{eq:seminorm}
+\|L\|_{\mathbb{L}} = \bigl\| \bigl(A(L), \mathbf{H}(L)\bigr) \bigr\|_{2}.
+\end{equation}
+Since the map $L \mapsto (A(L), \mathbf{H}(L))$ is linear by Lemma~\ref{lemma2} and $\|\cdot\|_2$ is a norm on the space of its values, the functional~\eqref{eq:seminorm} is absolutely homogeneous and satisfies the triangle inequality. It is a seminorm and not a norm, because its kernel
+\[
+\mathcal{N} = \{ L \in \mathbb{L} \mid \|L\|_{\mathbb{L}} = 0 \}
+\]
+is a non-trivial linear subspace of~$\mathbb{L}$: it is the intersection of the kernels of the two linear operators. The quotient space $\mathbb{L} / \mathcal{N}$ is therefore normed. The following statement identifies the kernel~$\mathcal{N}$ with a classical object of analytical mechanics.
 
-But the set~$\|L\|_L = 0$ is also a subspace of~$L_2$, since~$A(L)$, $\mathbf{H}(L)$~are linear operators, and hence their kernels are linear spaces. Then we can introduce a factor space in which the
-equivalence relation is equality to~$0$ of the semi-norm~$\|L\|_L$. Analyze the introduced equivalence.
-\begin{theorem}
-    
-\label{lemmaeq}
-$\|\delta L\|_L = 0 \Leftrightarrow \text{a.e.}~\delta \ddot{q} = 0$, where $\delta L = L' - L, ~\delta \ddot{q} = \ddot{q}' - \ddot{q}, ~\text{where} \ L',\ L \in \mathcal {X}$ are variations of the Lagrangian and acceleration over a set~$\mathcal {X}$, where functional equation \ref{eq:linear_equation_acc} respectful to L has unique solution in $\mathcal{X}$, and $\forall L\in \mathcal{X}:~\mathbf{H}(L) \not\equiv 0, $.
-\end{theorem} 
+\begin{remark} \label{remark:gauge}
+The kernel~$\mathcal{N}$ is exactly the set of the gauge terms of the Lagrangian. In classical mechanics it is a well-known fact that two Lagrangians which differ by the total time derivative of a function of the coordinates and time, $L' = L + \tfrac{d}{dt} F(\mathbf{q}, t)$, produce the same Euler-Lagrange equations and hence the same trajectories; see~\cite[\S 2]{LandauMechanics}. For the autonomous systems considered here $F = F(\mathbf{q})$ and
+\[
+\frac{d F(\mathbf{q})}{dt} = \nabla_{\mathbf{q}} F(\mathbf{q}) \cdot \dot{\mathbf{q}}.
+\]
+A direct computation gives $\mathbf{H}\bigl(\tfrac{d F}{dt}\bigr) = \mathbf{0}$, since this function is affine in~$\dot{\mathbf{q}}$, and
+\[
+A\left(\frac{d F}{dt}\right) = \nabla_{\mathbf{q}} \bigl( \nabla_{\mathbf{q}} F \cdot \dot{\mathbf{q}} \bigr) - \bigl( \nabla_{\mathbf{q}\mathbf{q}} F \bigr) \dot{\mathbf{q}} = \bigl( \nabla_{\mathbf{q}\mathbf{q}} F \bigr) \dot{\mathbf{q}} - \bigl( \nabla_{\mathbf{q}\mathbf{q}} F \bigr) \dot{\mathbf{q}} = \mathbf{0},
+\]
+so $\tfrac{d F}{dt} + c \in \mathcal{N}$ for any constant~$c$. Conversely, let $L \in \mathcal{N}$. The condition $\mathbf{H}(L) = \mathbf{0}$ means that $L$ is affine in the velocities, $L = \sum_{i=1}^r a_i(\mathbf{q}) \dot{q}_i + b(\mathbf{q})$. Substituting this expression into~$A(L)$ gives, for the $j$-th component,
+\[
+A(L)_j = \sum_{i=1}^r \left( \frac{\partial a_i}{\partial q_j} - \frac{\partial a_j}{\partial q_i} \right) \dot{q}_i + \frac{\partial b}{\partial q_j}.
+\]
+This expression vanishes for all $\dot{\mathbf{q}}$ if and only if $b$ is constant and the differential form $\sum_i a_i \, d q_i$ is closed, that is, $\mathbf{a} = \nabla_{\mathbf{q}} F$ for some function~$F$ on a simply connected domain~$\Omega$. Hence $\mathcal{N} = \{ \tfrac{d}{dt} F(\mathbf{q}) + c \}$ and the quotient $\mathbb{L}/\mathcal{N}$ is the space of the physically distinguishable Lagrangians. We stress that the seminorm~\eqref{eq:seminorm} is not a new equivalence: it is a way to compute the classical gauge equivalence numerically from the values of the network.
+\end{remark}
+
+The next theorem relates the equivalence induced by the seminorm to the observable quantity, the acceleration.
+\begin{theorem} \label{lemmaeq}
+Let $L, L' \in \mathbb{L}$ be non-degenerate on~$\Omega$ in the sense of~\eqref{eq:nondegeneracy}, and let $\ddot{\mathbf{q}}$ and $\ddot{\mathbf{q}}'$ be the accelerations defined by the systems~\eqref{eq:linear_equation_acc} written for $L$ and~$L'$ respectively. Denote $\delta L = L' - L$ and $\delta \ddot{\mathbf{q}} = \ddot{\mathbf{q}}' - \ddot{\mathbf{q}}$. Then
+\begin{enumerate}
+\item if $\|\delta L\|_{\mathbb{L}} = 0$, then $\delta \ddot{\mathbf{q}} = \mathbf{0}$ almost everywhere on~$\Omega$;
+\item if $\delta \ddot{\mathbf{q}} = \mathbf{0}$ almost everywhere on~$\Omega$ and, in addition, $\mathbf{H}(\delta L) = \mathbf{0}$ almost everywhere on~$\Omega$, then $\|\delta L\|_{\mathbb{L}} = 0$.
+\end{enumerate}
+\end{theorem}
 \begin{proof}
-
-Since $\ddot{q}' and (\ddot{q}')$ is solution of \ref{eq:linear_equation_acc} 
+By the definition of the accelerations,
 \begin{equation}
 \label{eq:lemmaeq_proof_1}
-A(L) = \mathbf{H}(L)\ddot{\mathbf{q}},
+\mathbf{H}(L)\ddot{\mathbf{q}} = A(L),
+\qquad
+\mathbf{H}(L')\ddot{\mathbf{q}}' = A(L').
 \end{equation}
-\begin{equation}
-\label{eq:lemmaeq_proof_2}
-A(L') = \mathbf{H}(L')(\ddot{\mathbf{q}}').
-\end{equation}
-Using $\ddot{q} = \ddot{q}' - \ddot{q}$, $\delta L = L' - L$ rewrite \ref{eq:lemmaeq_proof_2}
-\begin{equation}
-\label{eq:lemmaeq_proof_3}
-A(L+\delta L) = \mathbf{H}(L+\delta L)(\ddot{\mathbf{q}} + \delta \ddot{\mathbf{q}}).
-\end{equation}
-Expand the right side of equation \ref{eq:lemmaeq_proof_3}, considering $\mathbf{H}$ and $A$ are linear functionals
+Substitute $L' = L + \delta L$ and $\ddot{\mathbf{q}}' = \ddot{\mathbf{q}} + \delta\ddot{\mathbf{q}}$ into the second equality and expand it using the linearity of $A$ and~$\mathbf{H}$ established in Lemma~\ref{lemma2}:
 \begin{equation}
 \label{eq:lemmaeq_proof_4}
 \begin{split}
-A(L)+A(\delta L) = (\mathbf{H}(L)+\mathbf{H}(\delta L))(\ddot{\mathbf{q}} + \delta \ddot{\mathbf{q}})=
+A(L)+A(\delta L) = \bigl(\mathbf{H}(L)+\mathbf{H}(\delta L)\bigr)\bigl(\ddot{\mathbf{q}} + \delta \ddot{\mathbf{q}}\bigr)=
 \\
- = 
+=
 \mathbf{H}(L)\ddot{\mathbf{q}} + \mathbf{H}(L)\delta \ddot{\mathbf{q}} + \mathbf{H}(\delta L)\ddot{\mathbf{q}} + \mathbf{H}(\delta L)\delta \ddot{\mathbf{q}}.
 \end{split}
 \end{equation}
-Subtract expression \ref{eq:lemmaeq_proof_1} from expression \ref{eq:lemmaeq_proof_4}
+Subtracting the first equality of~\eqref{eq:lemmaeq_proof_1} from~\eqref{eq:lemmaeq_proof_4} gives the identity
 \begin{equation}
 \label{eq:lemmaeq_proof_mainexp}
 A(\delta L) = \mathbf{H}(\delta L)\ddot{\mathbf{q}} + \mathbf{H}(L)\delta \ddot{\mathbf{q}} + \mathbf{H}(\delta L)\delta \ddot{\mathbf{q}}.
 \end{equation}
 
-If $|(A(\delta L), \mathbf{H}(\delta L))\|_2 = 0$, then a.e. $A(\delta L) = 0$, $\mathbf{H}(L) = 0$. Using $A(\delta L) = 0$, $\mathbf{H}(L) = 0$ rewrite the equation
-\ref{eq:lemmaeq_proof_mainexp}
+Prove the first statement. If $\|\delta L\|_{\mathbb{L}} = 0$, then by the definition~\eqref{eq:seminorm} of the seminorm $A(\delta L) = \mathbf{0}$ and $\mathbf{H}(\delta L) = \mathbf{0}$ almost everywhere on~$\Omega$. Substituting this into~\eqref{eq:lemmaeq_proof_mainexp} leaves
 \begin{equation}
 \label{eq:lemmaeq_proof_5}
-0 = \mathbf{H}(L)\delta \ddot{\mathbf{q}}.
+\mathbf{0} = \mathbf{H}(L)\,\delta \ddot{\mathbf{q}}.
 \end{equation}
-As $\mathbf{H}(L) \not\equiv0$, then a.e. $\ddot{\mathbf{q}} = 0$.
+The matrix $\mathbf{H}(L)$ is non-degenerate at every point of~$\Omega$ by the assumption, therefore $\delta \ddot{\mathbf{q}} = \mathbf{0}$ almost everywhere.
 
-If a.e. $\ddot{\mathbf{q}} = 0$, then a.e. rewrite the equation \ref{eq:lemmaeq_proof_mainexp}
-\begin{equation}
-\label{eq:lemmaeq_proof_6}
-A(\delta L) = \mathbf{H}(\delta L)\ddot{\mathbf{q}}.
-\end{equation}
-Using $\ddot{q} = \ddot{q}' - \ddot{q}$, $\delta L = L' - L$ and considering $\mathbf{H}$ and $A$ are linear functionals rewrite \ref{eq:lemmaeq_proof_6}
-\begin{equation}
-\label{eq:lemmaeq_proof_7}
-A(L' - L) = \mathbf{H}(L' - L)\ddot{\mathbf{q}}
-\end{equation}
-\begin{equation}
-\label{eq:lemmaeq_proof_8}
-A(L') - A(L) = \mathbf{H}(L')\ddot{\mathbf{q}} -\mathbf{H}(L)\ddot{\mathbf{q}}
-\end{equation}
-Add expression \ref{eq:lemmaeq_proof_1} to expression
-\ref{eq:lemmaeq_proof_8}
-\begin{equation}
-\label{eq:lemmaeq_proof_9}
-A(L') = \mathbf{H}(L')\ddot{\mathbf{q}}\ddot{\mathbf{q}}
-\end{equation}
-As $L' \in \mathcal{X}$ functional equation \ref{eq:linear_equation_acc} respectful to L has unique solution, then a.e. $A(L') = A(L)$, $\mathbf{H}(L') = \mathbf{H}(L)$
-\begin{equation}
-\label{eq:lemmaeq_proof_9}
-\text{a.e.} A(L') = A(L), \mathbf{H}(L') = \mathbf{H}(L) \rightarrow \|(A(\delta L), \mathbf{H}(\delta L))\|_2 = 0
-\end{equation}
-
+Prove the second statement. Let $\delta \ddot{\mathbf{q}} = \mathbf{0}$ and $\mathbf{H}(\delta L) = \mathbf{0}$ almost everywhere. Then every term in the right-hand side of~\eqref{eq:lemmaeq_proof_mainexp} vanishes, hence $A(\delta L) = \mathbf{0}$ almost everywhere and, together with $\mathbf{H}(\delta L)=\mathbf{0}$, this gives $\|\delta L\|_{\mathbb{L}} = 0$.
 \end{proof}
 
-Note that in most cases $\|\mathbf{H}(\delta L)\|_2 = 0$, because it is always possible to choose the
-coordinates so, by means of the Legendre transform, that the Hesse matrix is unitary, for this
-purpose it is necessary to pass to the canonical coordinates, and thus it is enough to compare
-Classification of trajectories of dynamic systems using physically-informed neural networks 13
-only the first part of the norm~$\|A(L)\|_2$.
+\begin{remark} \label{remark:scaling}
+The additional assumption $\mathbf{H}(\delta L) = \mathbf{0}$ in the second statement of Theorem~\ref{lemmaeq} cannot be dropped. Indeed, for $L' = cL$ with a constant $c > 0$ the system~\eqref{eq:linear_equation_acc} is multiplied by~$c$ and produces the same accelerations, $\delta \ddot{\mathbf{q}} = \mathbf{0}$, while $\|\delta L\|_{\mathbb{L}} = |c-1|\,\|L\|_{\mathbb{L}} \neq 0$. This is the scaling ambiguity of the Lagrangian. It is the reason why the constraint on the eigenvalues of~$\mathbf{H}$ is imposed in Section~\ref{sec:loss}: it fixes the scale of the recovered Lagrangian and makes the representation of a trajectory reproducible. Together with Remark~\ref{remark:gauge}, the two statements say that the seminorm~\eqref{eq:seminorm} measures exactly the physically meaningful part of the difference between two Lagrangians: it is blind to the gauge terms and to nothing else, and it is sensitive to the overall scale, which is fixed by the normalization.
+\end{remark}
 
-This norm cannot be calculated exactly in the general case, because for this purpose it is
-necessary to calculate the integral of the function on the whole numerical line, but it can be
-approximated
-
-By definition of $L_2$-norm
+The seminorm~\eqref{eq:seminorm} cannot be evaluated exactly, because it requires the integration of the values of the network over the phase space. It is approximated by numerical integration. Let $\Omega \subset \mathbb{R}^{2r}$ be the compact sampling domain and let $\mu$ be the Lebesgue measure on it. By the definition of the $L_2$-norm,
 \begin{equation}
 \label{eq:l2_norm_approx_1}
-\|(A(L), \mathbf{H}(L))\|_2 = \sqrt{\int |A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2  d\Omega} 
+\|L\|_{\mathbb{L}} = \left(\int_{\Omega} \Bigl(\|A(L)(\mathbf{q},\dot{\mathbf{q}})\|_2^2 + \|\mathbf{H}(L)(\mathbf{q},\dot{\mathbf{q}})\|_F^2\Bigr)\,d\mu(\mathbf{q},\dot{\mathbf{q}})\right)^{1/2},
 \end{equation}
-
-If integral \label{eq:l2_norm_approx_1} is defined, then Riemann sum's converge to integral, when cell shrinks to zero, $\|x\| \to 0$
-\begin{equation}
-\label{eq:l2_norm_approx_2}
-\begin{split}
-\sum_{\substack{i_1 = 1, ..., i_n = 1\\ i = (i_1, ..., i_n)}}^{N, ..., N} |A(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)|^2  + \|\mathbf{H}(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)\|_2^2) \frac{\Delta X_1 \cdot ... \cdot X_n}{N \cdot .... \cdot N}
-\\
-\overset{N \to \infty}{\longrightarrow}\|(A(L), \mathbf{H}(L))| \Omega\|_2
-\overset{\mu(\Omega) \to \infty}{\longrightarrow} \|(A(L), \mathbf{H}(L))\|_2,
-\end{split}
+where $\|\cdot\|_2$ is the Euclidean norm of a vector and $\|\cdot\|_F$ is the Frobenius norm of a matrix. The integrand is continuous on the compact set~$\Omega$, hence integrable. Let $\{(\mathbf{q}_i,\dot{\mathbf{q}}_i)\}_{i=1}^N$ be a set of probe points in~$\Omega$. The integral is approximated by the quadrature
+\begin{equation}\label{eq:l2_norm_approx_main}
+\|L\|_{\mathbb{L}} \approx \left(\frac{\mu(\Omega)}{N} \sum_{i=1}^N \Bigl(\|A(L)(\mathbf{q}_i,\dot{\mathbf{q}}_i)\|_2^2 + \|\mathbf{H}(L)(\mathbf{q}_i,\dot{\mathbf{q}}_i)\|_F^2\Bigr)\right)^{1/2}.
 \end{equation}
-where cells defined on uniform grid over $\Omega = [-\Delta X_1/2,\Delta X_1/2]  \times ... \times  [-\Delta X_n/2,\Delta X_n/2]$ and $\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)$ are coordinates of centers of cells.
+The probe points are either the nodes of a uniform grid, in which case~\eqref{eq:l2_norm_approx_main} is a Riemann sum and converges to~\eqref{eq:l2_norm_approx_1} as the mesh size tends to zero, or independent samples from the uniform distribution on~$\Omega$, in which case~\eqref{eq:l2_norm_approx_main} is the Monte Carlo estimate of the integral and converges almost surely as $N \to \infty$ by the strong law of large numbers, with the error of the order $O(N^{-1/2})$ independent of the dimension~$2r$. The second option is used in the computational experiment, because the number of the grid nodes grows exponentially with~$2r$.
 
-Rewrite expression \ref{eq:l2_norm_approx_2} using the fact $\mu(\Omega) = \Delta X_1 \cdot ... \cdot X_n$
-\begin{equation}
-\label{eq:l2_norm_approx_main}
-\centering
-\begin{split}
-\sum_{\substack{i_1 = 1, ..., i_n = 1\\ i = (i_1, ..., i_n)}}^{N, ..., N} |A(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)|^2  + \|\mathbf{H}(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)\|_2^2) \frac{\Delta X_1 \cdot ... \cdot X_n}{N \cdot .... \cdot N} =
-\\
-\mu(\Omega) \cdot \sum_{i_1 = 1, ..., i_n = 1}^{N, ..., N} \frac{A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}{N \cdot .... \cdot N} =  
-\\ 
-\mu(\Omega) \cdot \overline{|A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}.
-\end{split}   
-\end{equation}
+\begin{remark} \label{remark3}
+In many cases the second summand in~\eqref{eq:l2_norm_approx_1} may be omitted. Passing to the canonical coordinates by the Legendre transform makes the Hessian~$\mathbf{H}$ the identity matrix, so that $\mathbf{H}(\delta L) = \mathbf{0}$ for the Lagrangians normalized in this way and it is sufficient to compare the first part of the seminorm, $\|A(L)\|_2$. This is also what makes the vectorization of Section~\ref{sec:classifier} possible: the vector of the values of $A(L)$ at a fixed finite set of probe points is a projection of the Lagrangian space onto~$\mathbb{R}^{n}$ which changes the seminorm by an arbitrarily small value as $N$ grows.
+\end{remark}
 
-Since we are solving a classification problem, let us compare to each Lagrangian~$L_i$ its class~$\mathcal{A}_{k} = \{L_i| y_i = k\}$, where $y_i$ is the class label of Lagrangian. Thus, we have a finite family of non-intersecting closed closed singular sets~$\mathcal{A}$ in the space~$\mathbb{L}$ of Lagrangians, where each family represents a class corresponding to a human motion.
+Since we are solving a classification problem, we assign to each Lagrangian~$L_i$ its class $\mathcal{A}_{k} = \{L_i \mid y_i = k\}$, where $y_i$ is the class label of the Lagrangian. By the compactness hypothesis stated at the beginning of this section, we thus have a finite family of non-intersecting closed convex sets~$\mathcal{A} = \{\mathcal{A}_k\}_{k=1}^K$ in the space~$\mathbb{L}$ of Lagrangians, where each set represents a class that corresponds to one type of human motion.
 
 \begin{theorem} \label{main_theorem}
-Let there be a finite family of non-intersecting closed convex sets~$\mathcal{A}$ in the
-normalized space~$\mathbb{L}$, then there exists~$\epsilon > 0$ such that for any transformation of the space~$\phi$ such that 
+Let $\mathcal{A} = \{\mathcal{A}_1, \dots, \mathcal{A}_K\}$ be a finite family of non-intersecting closed convex sets in the
+normed space~$\mathbb{L}$. Then there exists $\epsilon > 0$ such that for any transformation~$\phi$ of the space which satisfies
 \[
-\|\phi(\mathcal{A}_{i}) - \mathcal{A}_{i}\| < \epsilon
+\|\phi(\mathcal{A}_{i}) - \mathcal{A}_{i}\| < \epsilon,
+\quad i = 1, \dots, K,
 \]
-sets from the family~$\phi{\mathcal{A}}$ is pairwise strongly separable.
+the sets of the family~$\phi(\mathcal{A})$ are pairwise strongly separable.
 \end{theorem}
 
 \begin{proof}
-According to the first Hahn-Banach separability theorem, sets from the family~$\mathcal{A}$ are
-pairwise separable
-\[ 
-\underset{x \in \mathcal{A}_{i}}{\langle a, x \rangle}\leq \gamma_{i} < \gamma_{j} \leq \underset{y \in \mathcal{A}_{j}}{\langle a, y \rangle}.
+By the first Hahn-Banach separation theorem, for every pair of indices $i \neq j$ the sets $\mathcal{A}_i$ and $\mathcal{A}_j$ are separated by a continuous linear functional~$a$,
+\[
+\sup_{x \in \mathcal{A}_{i}}{\langle a, x \rangle}\leq \gamma_{i} < \gamma_{j} \leq \inf_{y \in \mathcal{A}_{j}}{\langle a, y \rangle}.
 \]
-Since the functional $a$ is continuous, for any $\epsilon > 0$ there exists a neighborhood of zero~$U(0)$ such that 
+Since the functional $a$ is continuous, for any $\delta > 0$ there exists a neighbourhood of zero~$U(0)$ such that
 \[
-\underset{y \in U(0)}{\langle a, y \rangle} \leq \epsilon.
+\sup_{z \in U(0)}{|\langle a, z \rangle|} \leq \delta.
 \]
-Let's take $\epsilon_{ij}$ for each pair of classes $i, j$ such as
+For each pair of classes $i \neq j$ put
 \[
-\epsilon_{ij} = \frac{|\gamma_{i} - \gamma_{j}|}{3},\]
-then
+\epsilon_{ij} = \frac{|\gamma_{i} - \gamma_{j}|}{3}.
+\]
+A transformation~$\phi$ with $\|\phi(\mathcal{A}_i) - \mathcal{A}_i\| < \epsilon_{ij}$ maps $\mathcal{A}_i$ into $\mathcal{A}_i + U(0)$ with the neighbourhood~$U(0)$ that corresponds to $\delta = \epsilon_{ij}$, hence
 \[
-\underset{x \in \mathcal{A}_{i} + U(0)}{\langle a, x \rangle}\leq \gamma_{i} + \epsilon < \gamma_{j} + \epsilon \leq \underset{y \in \mathcal{A}_{j} + U(0)}{\langle a, y \rangle}.\]
-If we take $\epsilon = \underset{i, j}{\min{\epsilon_{ij}}}$, then the sets $\mathcal{A}_{i}$ are pairwise strongly separable.
+\sup_{x \in \mathcal{A}_{i} + U(0)}{\langle a, x \rangle}\leq \gamma_{i} + \epsilon_{ij} < \gamma_{j} - \epsilon_{ij} \leq \inf_{y \in \mathcal{A}_{j} + U(0)}{\langle a, y \rangle},
+\]
+where the middle inequality holds because $2\epsilon_{ij} = \tfrac{2}{3}|\gamma_i - \gamma_j| < |\gamma_i - \gamma_j|$. Taking $\epsilon = \min_{i \neq j} \epsilon_{ij}$, which is positive because the family is finite, gives the required strong separability of all the pairs simultaneously.
 \end{proof}
 
-This theorem allows us to study the properties of Lagrangians on their approximations,
+This theorem allows us to study the properties of the Lagrangians on their approximations,
 which simplifies the problem markedly.
 
-Based on this theorem, we can state a sufficient property for the approximation algorithm.
-There must exist~$\epsilon > 0$ such that for any~$\mathcal{L} \in \mathbb{L}$ it is true that~$\|\mathcal{L}- \mathcal{L}_{\epsilon}\| < \epsilon$. In other words, it is necessary that the distance from the approximated Lagrangian to the true one was small. I.e., it is required that the neural network does not overtrain and approximates the Lagrangian with sufficient accuracy. This condition is fulfilled for a correctly constructed network.
+Based on this theorem, we can state a sufficient condition for the approximation algorithm.
+There must exist~$\epsilon > 0$ such that for any~$L \in \mathbb{L}$ the inequality $\|L - L_{\epsilon}\| < \epsilon$ holds, where $L_\epsilon \in \mathbb{L}_\epsilon$ is its approximation. In other words, the distance from the approximated Lagrangian to the true one has to be small: the neural network must not overfit and must approximate the Lagrangian with sufficient accuracy. This condition is fulfilled for a correctly constructed network.
 
-From Theorem~\ref{main_theorem} follows the first method of classifying the Lagrangian. Since we have introduced a norm in the space~$\mathbb{L}$, it generates a metric. Hence, we can use metric methods of classification. In this paper, we propose to use the parameters of a neural network approximating the Lagrangian for classification. The following theorem helps us in this.
+Theorem~\ref{main_theorem} yields the first method of classifying the Lagrangians. Since we have introduced a seminorm in the space~$\mathbb{L}$, it generates a metric on the quotient space, and the metric methods of classification are applicable. The second option is to classify the Lagrangians by the parameters of the neural network that approximates them. The following theorem gives the conditions under which this is possible.
 
 \begin{theorem} \label{r_theorem}
-Let there be a finite family of sets $\mathcal{A}$ in a normalized space $\mathbb{L}$, $\epsilon > 0$, and a transformation of the space $\phi$ such that $\|\phi(\mathcal{A}_{i}) - \mathcal{A}_{i}\| < \epsilon$ sets from the family $\phi{\mathcal{A}}$ are pairwise
-strongly separable, and a mutually unambiguous continuous mapping $\psi: \mathbb{L}_{\epsilon} \rightarrow \mathbb{R}^{n}$ the inverse mapping is continuous and convex. Then the sets $\mathcal{A}_{i}$ are pairwise strongly separable.
+Let $\mathcal{A}$ be a finite family of sets in a normed space $\mathbb{L}$ and let $\epsilon > 0$ be such that for any transformation~$\phi$ of the space with $\|\phi(\mathcal{A}_{i}) - \mathcal{A}_{i}\| < \epsilon$ the sets of the family $\phi(\mathcal{A})$ are pairwise
+strongly separable. Let $\psi \colon \mathbb{L}_{\epsilon} \rightarrow \mathbb{R}^{n}$ be a one-to-one continuous mapping whose inverse is continuous and convex. Then the sets $\mathcal{A}_{i}$ are pairwise strongly separable.
 \end{theorem}
 
 \begin{proof}
-Let us immerse in the space $\mathbb{R}^{n}$. In it $\phi\psi \mathcal{A}_{i}$ are pairwise strongly separable. Then each set is bounded by the corresponding hyperplanes $\underset{x \in \phi\psi\mathcal{A}_{i}}{\langle a, x \rangle}\leq \gamma_{1}$
-
-Let us extend each set to hyperplanes and consider the already extended ones. Each of these
-sets is compact. Since $\psi^{-1}$ is convex and continuous, the image of the extended sets is also convex and compact. Hence, the extended sets are the pairs are highly separable.
+Embed the family into the space $\mathbb{R}^{n}$ by the mapping~$\psi$. In it the sets $\psi\phi(\mathcal{A}_{i})$ are pairwise strongly separable, so each of them is bounded by the corresponding hyperplane,
+\[
+\sup_{x \in \psi\phi(\mathcal{A}_{i})}{\langle a, x \rangle}\leq \gamma_{i}.
+\]
+Extend each set up to its hyperplane and consider the extended sets. Each of them is convex and compact. Since $\psi^{-1}$ is convex and continuous, the image of an extended set under~$\psi^{-1}$ is also convex and compact. Hence the preimages of the extended sets, and therefore the sets~$\mathcal{A}_i$ themselves, are pairwise strongly separable.
 \end{proof}
 
-The theorem gives sufficient conditions for the compactness hypothesis to hold for initial
-sets. But its conditions are quite strong. It requires that the weights be continuous, which may
-not be the case. This method is convenient because you don't have to use many features, but it
-is not suitable for proving that the hypothesis is not fulfilled for a data set. If it is not fulfilled, it is better to use methods based on the metric given by the norm.
+The theorem gives sufficient conditions for the compactness hypothesis to hold for the initial
+sets. Its conditions are, however, quite strong: they require the dependence of the network parameters on the Lagrangian to be continuous, which is not guaranteed. This method is convenient because it does not require many features, but it is not suitable for showing that the hypothesis fails for a given dataset. If the hypothesis fails, it is better to use the methods based on the metric induced by the seminorm.
 
 
 \section{Formulation of the classification problem for trajectories of physical systems} \label{sec:classification}
-For the given sample set~\eqref{eq:dataset} we define the classification model~$p({y}|X, D)$ for~${y} \in \{1,\dots,K\}$, the set of  class labels for the trajectories. The classification quality is defined by 
+For a given set of trajectories we define the classification model~$p({y} \mid X, D)$, where ${y} \in \{1,\dots,K\}$ is the class label of a trajectory. The classification quality is defined by
 \[
-\text{Accuracy} = \frac{1}{N} \sum_{i = 1}^N \left[\hat{y_i} = y_i\right].
+\text{Accuracy} = \frac{1}{N} \sum_{i = 1}^N \bigl[\hat{y}_i = y_i\bigr].
 \]
-Despite this formulation of the problem, it is usually physically justified to classify dynamical systems, which in the case under consideration are identified with the Lagrangians $L$, rather than the realizations of the systems themselves in the form of trajectories.
+It is, however, physically more justified to classify the dynamical systems, which in the case under consideration are identified with the Lagrangians~$L$, rather than the realizations of these systems in the form of trajectories. A trajectory depends on the initial conditions and on the observation window, whereas the Lagrangian depends only on the mechanical system itself. Therefore the paper considers a slightly different, but in this interpretation physically equivalent, formulation of the problem.
 
-Therefore, the paper considers a slightly different, but in this interpretation physically
-equivalent formulation of the problem.
+We need to find a classification method
+\[
+p(\hat{y} \mid X, D) = p(\hat{y} \mid L, D)\, p(L \mid X),
+\]
+where $\{X_i\}_{i=1}^N$ is a set of $N$ trajectories of dimension~$r$ and length~$T$, $D$ is the given training sample, $\hat{y} \in \{1,\dots, K\}$ is the predicted class label, and $p(L \mid X)$ matches the trajectory~$X$ to the Lagrangian~$L$. The first factor is an ordinary classification model in the space of Lagrangians, and the second one is the map recovered by the Lagrangian neural network.
 
-We need to find a classification method~$p(\hat{y}|X, D) = p(\hat{y}|L, D)p(L|X)$, where $X = \{(X_i)\}_{i=1}^N$ is a~set of length~$N$ of trajectories of dimension~$r$ and length $t$, $D$ is the given training sample, $\hat{y} \in \{1,\dots, K\}$ are the predicted class labels, and $p(L|\mathbf{X})$ matches the trajectory~$\mathbf{X}$ to the Lagrangian $L$.
+In this paper we take the point estimate $p(L \mid X) = [L = \hat{L}]$, where $\hat{L}$ is the parametric estimate of the Lagrangian obtained by a Lagrangian neural network from the regression problem of Section~2. This formulation, however, also makes it possible to use a probabilistic estimator~$p(L \mid X)$ for the Lagrangian~$L$.
 
-In this paper, as a method $p(L|X) = [L = \hat{L}]$ we consider point-wise estimation of the
-trajectory~$\mathbf{X}$ by a parameterized estimate of the Lagrangian $\hat{L}$  by a Lagrangian neural network from the considered regression problem for time series. But such a formulation makes
-it possible to use the probabilistic estimator~$p(L|\mathbf{X})$ for the Lagrangian $L$.
+\section{Loss function} \label{sec:loss}
+The straightforward loss function~\eqref{eq:mse_loss} is not suitable for the problem at hand. To evaluate it one has to solve the system~\eqref{eq:linear_equation_acc}, that is, to invert the matrix~$\mathbf{H}(\hat{L})$ at every point of the trajectory. This is the same difficulty that arises for the Hamiltonian networks when the continuous phase space is discretized~\cite{HNNnonvangrad}. Two effects make the optimization problem~\eqref{eq:opt_task} ill-posed.
 
-\section{Loss function}
-Similar to the problem with discretization of continuous space of HNN~\cite{HNNnonvangrad}. The solution of equation \eqref{eq:linear_equation_acc} is invariant with respect to $\ddot{q}$, where $L$ is multiplied by $c > 0$. In this case, when $L$ tends to zero, the error $\delta\ddot{q}$ tends to infinity. It also means that the solution of the optimization problem \eqref{eq:opt_task} is essentially ambiguous. For regularization of the problem impose restrictions on the found solution
+First, the problem is scale-invariant. If the Lagrangian~$\hat{L}$ is multiplied by a constant $c > 0$, both sides of~\eqref{eq:linear_equation_acc} are multiplied by~$c$ and the predicted accelerations do not change, so the minimizer of~\eqref{eq:opt_task} is defined up to an arbitrary positive factor, as stated in Remark~\ref{remark:scaling}.
+
+Second, this invariance is not harmless numerically. As $\|\mathbf{H}(\hat{L})\| \to 0$ the matrix of the system becomes singular, the inverse $\mathbf{H}(\hat{L})^{-1}$ is unbounded, and an arbitrarily small perturbation of the right-hand side produces an arbitrarily large error $\delta \ddot{\mathbf{q}}$ in the predicted accelerations. The optimizer exploits this: it drives the Lagrangian towards zero, where the model formally fits any data, the equilibrium point becomes unstable and the reconstructed trajectories exhibit non-physical oscillations.
+
+To regularize the problem we impose the constraint
 \begin{equation}\label{eq:opt_task_rest}
-    \lambda \left(\mathbf{H}\right) > 1.
+    \lambda_j \left(\mathbf{H}(\hat{L})(\mathbf{x})\right) \ge 1,
+    \quad j = 1, \dots, r,
+    \quad \mathbf{x} \in \Omega,
 \end{equation}
+on the eigenvalues of the Hessian. Lemma~\ref{lemma1} guarantees that this constraint does not exclude the true Lagrangian: on a compact domain the eigenvalues of a non-degenerate Hessian are bounded away from zero by some $b > 0$, and by the scale invariance the Lagrangian may always be multiplied by $1/b$ so that~\eqref{eq:opt_task_rest} holds. Hence the constrained problem attains the same optimal value as the unconstrained one, and in addition the scale of the solution is fixed.
 
-In accordance with Lemma \ref{lemma1}, the solution on the set with constraint \eqref{eq:opt_task_rest} is not worse than for
-the problem without constraints. At the same time, this constraint does not solve the problem with
-ambiguity of the problem. This requires a modification of the loss function. We add a summand equal to the inconsistency in the solution of SLAE \eqref{eq:linear_equation_acc} with respect to $\ddot{q}$
-\[\mathbf{H}\ddot{\mathbf{q}} = b,\]
- \[\mathbf{H}\hat{\ddot{\mathbf{q}}} = \hat{b} = \left(\nabla_{\dot{\mathbf{q}} \dot{\mathbf{q}}} L\right)^{-1}\left[\nabla_{q} L-\left(\nabla_{\dot{\mathbf{q}}\mathbf{q}} L\right) \dot{\mathbf{q}}\right], \]
+We also replace the residual of the accelerations by the residual of the linear system~\eqref{eq:linear_equation_acc} itself. Instead of solving the system for $\hat{\ddot{\mathbf{q}}}$ and comparing it with the measured $\ddot{\mathbf{q}}$, we substitute the measured acceleration into the system and penalize its discrepancy,
 \begin{equation}
-    \mathcal{L}_{\text{add}}(\textbf{w}) = \frac{1}{T}\sum_{i=1}^{T} \| \mathbf{\hat{b}}_i - \mathbf{b}_i \|_2^2.
+\label{eq:loss_res}
+    \mathcal{L}_{\text{res}}(\mathbf{w}) = \frac{1}{T}\sum_{t=1}^{T} \bigl\| A(\hat{L})(\mathbf{x}_t) - \mathbf{H}(\hat{L})(\mathbf{x}_t)\, \mathbf{y}_t \bigr\|_2^2,
 \end{equation}
+where $\mathbf{y}_t = \ddot{\mathbf{q}}_t$ is the measured acceleration and $\hat{L} = f(\cdot \mid \mathbf{w})$. The loss~\eqref{eq:loss_res} does not contain the inverse matrix, so its gradient with respect to~$\mathbf{w}$ remains bounded near the degenerate configurations, and the whole expression is a composition of automatic differentiation operations applied to the network. By Theorem~\ref{lemmaeq} an exact estimate of the Lagrangian gives $\mathcal{L}_{\text{res}} = 0$, and under the constraint~\eqref{eq:opt_task_rest} the eigenvalues of~$\mathbf{H}(\hat{L})$ are at least one, so $\mathcal{L}_{\text{res}} \ge \mathcal{L}$, where $\mathcal{L}$ is the loss~\eqref{eq:mse_loss}: the residual of the system dominates the residual of the accelerations, and the minimization of $\mathcal{L}_{\text{res}}$ also minimizes the error of the predicted accelerations.
 
-According to Lemma~\ref{lemmaeq} for~$\hat{L}$ an exact estimate $\ddot{\mathbf{q}}$ gives $\mathcal{L}_\text{add} = 0$. Moreover, if the constraints~\eqref{eq:opt_task_rest} are satisfied, $\mathcal{L}_\text{add} > \mathcal{L}$ and we can replace the loss function by~$\mathcal{L}$ . Thus, we obtained the following loss function, taking into account the constraints
+The hard constraint~\eqref{eq:opt_task_rest} corresponds to the loss function with an infinite barrier,
+\begin{equation}
+\label{eq:loss_hard}
+    \mathcal{L}_{\text{total}} = \mathcal{L}_{\text{res}} + \mathcal{L}_\text{restriction},
+    \quad
+    \mathcal{L}_\text{restriction}(\mathbf{w}) = +\infty \cdot \Bigl[\min_{j,t} \lambda_j\bigl(\mathbf{H}(\hat{L})(\mathbf{x}_t)\bigr) < 1 \Bigr],
+\end{equation}
+where $[\cdot]$ is the indicator function. In this form the penalty is neither continuous nor differentiable, so it cannot be used with a gradient optimization method. We therefore replace it by a smooth one-sided barrier. Let
+\[
+a(z) = \operatorname{SiLU}(z) = z\,\sigma(z), \quad \sigma(z) = \bigl(1 + e^{-z}\bigr)^{-1},
+\]
+and let $s_{\min} = \min_{z \in \mathbb{R}} a(z) \approx -0.2785$ be attained at $z^{*} \approx -1.2785$. The penalty actually used in the computational experiment is
+\begin{equation}
+\label{eq:loss_soft}
+    \mathcal{L}_\text{restriction}(\mathbf{w}) = \frac{1}{Tr}\sum_{t=1}^{T} \sum_{j=1}^{r} \alpha \Bigl( a\bigl(\beta\bigl(1 - \lambda_j(\mathbf{H}(\hat{L})(\mathbf{x}_t))\bigr)\bigr) - s_{\min} \Bigr),
+\end{equation}
+where $\alpha > 0$ scales the penalty and $\beta > 0$ controls the sharpness of the barrier. The subtraction of $s_{\min}$ makes every summand non-negative. The function~\eqref{eq:loss_soft} has the following behaviour. If an eigenvalue tends to zero, the argument of~$a$ tends to $+\beta$ and above, where $a(z) \approx z$, so the penalty grows linearly with the slope $\alpha\beta$ and repels the solution from the degenerate matrices. If an eigenvalue is large, the argument tends to $-\infty$, where $a(z) \to 0$, and the penalty saturates at the constant $-\alpha s_{\min}$, so that no pressure is applied to the well-conditioned solutions. The minimum of a summand is attained at $\lambda_j = 1 - z^{*}/\beta$, which tends to~$1$ as $\beta \to \infty$; in this limit~\eqref{eq:loss_soft} recovers the hard constraint~\eqref{eq:opt_task_rest}. The resulting loss function is
+\begin{equation}
+\label{eq:loss_total}
+    \mathcal{L}_{\text{total}}(\mathbf{w}) = \mathcal{L}_{\text{res}}(\mathbf{w}) + \mathcal{L}_\text{restriction}(\mathbf{w}),
+\end{equation}
+with $\mathcal{L}_{\text{res}}$ from~\eqref{eq:loss_res} and $\mathcal{L}_\text{restriction}$ from~\eqref{eq:loss_soft}. Expression~\eqref{eq:loss_total} is the objective that is minimized in Section~\ref{sec:experiment}; the values of the hyperparameters $\alpha$ and $\beta$ are given there.
 
-\begin{equation}
-    \mathcal{L} = \mathcal{L}_\text{add} + \mathcal{L}_\text{restriction},
-\end{equation}
-\begin{equation}
-    \mathcal{L}_\text{add}(\textbf{w}) = \frac{1}{T}\sum_{i=1}^{T} \| \mathbf{\hat{b}}_i - \mathbf{b}_i \|_2^2,
-\end{equation}
-\begin{equation}
-    \mathcal{L}_\text{restriction}(\textbf{w}) = +\infty[\left(\mathbf{H}\right) > 1].
-\end{equation}
-\section{Classification method}
+\section{Classification method} \label{sec:classifier}
 The classification method has the following form 
 \[
 p(\hat{y}|X, D) = p(\hat{y}|L, D)p(L|X).
 \] 
 As mentioned in Section \ref{sec:classification}, the method $p(L|X)$ assigns to each trajectory an estimate of the Lagrangian $\hat{L}$ from the linear regression problem for a Lagrangian neural network.
 
-But it is not possible to simply apply the vector method of classifying $L$ as $p(\hat{y}|L, D)$ since $L$ is
-a vector of an infinite-dimensional space $\mathbb{L}$. For this purpose, the space $L$ is projected onto the finite-dimensional space in such a way that the norm of the vectors under consideration changes by no more than a predetermined value $\epsilon > 0$.
+But it is not possible to apply a vector classification method to~$L$ directly, since $L$ is an element of the infinite-dimensional space~$\mathbb{L}$. Therefore the space~$\mathbb{L}$ is projected onto a finite-dimensional space in such a way that the seminorm of the vectors under consideration changes by no more than a predetermined value $\epsilon > 0$.
 
-As norm in space $\mathbb{L}$ is taken norm $\|L\|_L$. To its approximation on a finite set of points is used to calculate the norm 
+The seminorm $\|L\|_{\mathbb{L}}$ is approximated on a finite set of probe points by the quadrature~\eqref{eq:l2_norm_approx_main}. Its summands are the values of
 \[
-\|L\|_L \approx \overline{|A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)|^2 + \|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)\|_2^2}.
-\] 
-If we take the values of 
-\[A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right) 
-\quad \text{and} \quad 
-\|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right) 
+A(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)
+\quad \text{and} \quad
+\mathbf{H}(L)\left(\mathbf{q}_i, \dot{\mathbf{q}}_i\right)
 \]
-as the value of the vector, we obtain the projection of the space L onto a finite-dimensional space. The projection is the input to the classifier. This projection is fed to the input of the classifier. Thus we obtain the classification method: 
+at the probe points. Collecting these values into one vector gives the required projection of the space~$\mathbb{L}$ onto a finite-dimensional space; by Remark~\ref{remark3} it is sufficient to keep the values of~$A(L)$ only. This vector is fed to the input of the classifier. Thus we obtain the classification method
 
 \begin{equation}
 \xymatrix{
@@ -553,49 +572,57 @@ X  \ar@{->}[r]^-{LNN}  & \hat{L}=g(x|w) \ar@{->}[rr]^{{L_N^{i} = A(L)\left(\math
 }
 \label{fig: classificator}
 \end{equation}
-At the beginning, during the training phase, a set of points 
+Before the training phase, the set of probe points
 \[
-Q_N \sim U([-L, L]^{2r}), |Q_N| = N
-\] 
-in which the function values are sampled is selected in advance. For trajectory $X$ estimate of $\hat{L}$ is found by Lagrangian neural network. Then for
-function $\hat{L}$ is searched for the values of $A(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)$ and $\|\mathbf{H}(L)\left(\mathbf{q}, \dot{\mathbf{q}}\right)$ at selected points $Q_N$. From these values a vector $L_N$ is collected. Then this vector $L_N$ is fed to the input of the vector classification method. Thus, the points  $Q_N$ act as hyperparameters, and the trained part of the model is the classifier $C: L_N \to \hat{y}$.
+Q_N = \{\mathbf{s}_i\}_{i=1}^N \sim U\bigl([-c, c]^{2r}\bigr), \quad |Q_N| = N,
+\]
+at which the function values are sampled, is selected once and is then kept fixed. For a trajectory~$X$ the estimate~$\hat{L}$ is found by the Lagrangian neural network. Then the values of $A(\hat{L})(\mathbf{s}_i)$ are computed at the probe points $\mathbf{s}_i \in Q_N$ and are collected into the vector $L_N \in \mathbb{R}^{rN}$. This vector is fed to the input of a vector classification method. Thus the points $Q_N$, the size~$c$ of the cube and the number~$N$ of the points act as hyperparameters, and the trained part of the model is the classifier $C \colon L_N \to \hat{y}$. The same set $Q_N$ is used for all the trajectories, so the vectors $L_N$ of different trajectories are comparable componentwise and the Euclidean distance between them approximates the distance induced by the seminorm~\eqref{eq:seminorm}.
 
-\section{Computational experiment}
+\section{Computational experiment} \label{sec:experiment}
 The aim of the experiment is to classify multivariate time series represented as trajectories
 of physical systems. As subtasks, it is necessary to confirm the hypothesis of compactness of
 classes, to confirm in practice the theory that the Lagrangian space can be normalized by the
-proposed norm and sampled by a predetermined set of points, and to construct a classifier using
+proposed seminorm and sampled by a predetermined set of points, and to construct a classifier using
 it.
 
-Studies were conducted on the Physical Activity Monitoring (PAMAP2) dataset \cite{misc_pamap2_physical_activity_monitoring_231}.
-The
-dataset contains recordings from three sets of gyroscopes and accelerometers: attached to the
-wrist of the dominant arm, attached to the chest, attached to the elbow of the predominant hand. Number of subjects: $M = 9$. . Number of activity types(classes): $K = 24$, each activity lasted 2-4 minutes \cite{misc_pamap2_physical_activity_monitoring_231}, sampling frequency 100 Hz.
 
+%%% TODO (not implemented yet): the benchmark announced in the paragraph above.
+%%% Run ROCKET / MiniRocket / MultiRocket / InceptionTime and, if feasible, HIVE-COTE 2.0
+%%% on the full 12-class PAMAP2 protocol, and replace the sentence "is the subject of a
+%%% separate experimental study" by the reported numbers. The matching paragraph in
+%%% Section 8 and item 3.3 of response-to-reviewers.md must be rewritten at the same time.
 
-Of all the sensors presented in the dataset, gyroscopes were selected as the most suitable for classification. walking, running, cycling and non-moving state. Data processing consists of recovering the gaps in the data, associated with the absence of signals from gyroscopes, as well as obtaining the values of
-angles and angular accelerations from angular velocities obtained from gyroscopes.
+\subsection{Dataset} \label{sec:dataset}
+The study was conducted on the Physical Activity Monitoring (PAMAP2) dataset~\cite{misc_pamap2_physical_activity_monitoring_231}. The dataset was collected from $M = 9$ subjects, eight men and one woman, aged $27.2 \pm 3.3$ years. Each subject wore three inertial measurement units and a heart rate monitor. The units are placed on the wrist of the dominant arm, on the chest, and on the ankle of the dominant side. Each unit provides a three-axis accelerometer with two ranges, a three-axis gyroscope, a three-axis magnetometer and a temperature sensor, all sampled at the frequency $100$~Hz, which corresponds to the time step $h = 0.01$~s. The dataset consists of two parts. The protocol part, which is used here, contains $12$ activities performed by every subject: lying, sitting, standing, ironing, vacuum cleaning, ascending stairs, descending stairs, walking, Nordic walking, cycling, running, and rope jumping. Each activity lasts $2$--$4$ minutes. The optional part contains six additional activities performed by a part of the subjects only and is not used.
 
-Some data in the rows is lost due to communication problems. To recover the series, spline interpolation is used to obtain quadratic accuracy from the grid size. Numerical differentiation and integration are used to recover acceleration $\ddot{\mathbf{q}}$, velocity $\dot{\mathbf{q}}$ and coordinates $\mathbf{q}$. We use the central difference for differentiation
+Of all the sensors presented in the dataset, the gyroscopes were selected as the most suitable ones, because their readings are the angular velocities of the body segments, that is, the generalized velocities~$\dot{\mathbf{q}}$ of the mechanical model of the body, whereas the accelerometer readings mix the proper acceleration with the projection of gravity and depend on the unknown orientation of the sensor. The three units give $3 \times 3 = 9$ channels, so the number of the generalized coordinates is $r = 9$ and the dimension of the phase space is $2r = 18$. The accelerometers, magnetometers, temperature and heart rate channels are discarded.
+
+Four of the $12$ protocol activities are used in the experiment, $K = 4$: standing, walking, running, and cycling. These classes are chosen because they are the pure locomotion regimes of the whole body, they are recorded for all the nine subjects, and they differ in the mechanical model rather than in the context: a non-moving state, two gait regimes at different speed, and a periodic motion with an external constraint imposed by the bicycle. All the results reported below, both the projections in Figures~\ref{fig:2D} and~\ref{fig:3D} and the accuracies in Table~\ref{table:classifictors}, refer to this four-class problem. The remaining eight activities of the protocol are not used, because several of them, such as ironing or vacuum cleaning, are defined by the manipulated object rather than by the dynamics of the body, and the assumption that a single autonomous Lagrangian describes them is not justified.
+
+\subsection{Data preprocessing}
+Some readings in the series are lost due to the communication problems of the wireless sensors. To recover the series, spline interpolation is used, which gives the accuracy quadratic in the grid size. Numerical differentiation and integration are then used to recover the accelerations $\ddot{\mathbf{q}}$ and the coordinates $\mathbf{q}$ from the measured velocities $\dot{\mathbf{q}}$. We use the central difference for differentiation,
 \[
 \ddot{\mathbf{q}}_k =\frac{\dot{\mathbf{q}}_{k+1} - \dot{\mathbf{q}}_{k-1}}{2h},
 \quad
-\left|E(\ddot{q}_k)\right|\le \frac{h^2}{6}\mathbf{q}^{(4)},
+\left|E(\ddot{\mathbf{q}}_k)\right|\le \frac{h^2}{6}\max_t \left|\mathbf{q}^{(4)}(t)\right|,
 \]
-and the Cortes formula for integration 
+and Simpson's rule, one of the Newton--Cotes formulas, for integration,
 \[
-\begin{split}
-\mathbf{q}_k = \int_{0}^{t_k}{\dot{\mathbf{q}}(t)d\mathbf{x}}\approx\frac{h}{3}\sum_{k=1}^{N-1}{\Big(\dot{\mathbf{q}}_{k-1}+4\dot{\mathbf{q}}_k+\dot{\mathbf{q}}_{k+1}\Big)},
-%\\
+\mathbf{q}_k = \int_{0}^{t_k}{\dot{\mathbf{q}}(t)\,dt}\approx\frac{h}{3}\sum_{j=1}^{k-1}{\Big(\dot{\mathbf{q}}_{j-1}+4\dot{\mathbf{q}}_j+\dot{\mathbf{q}}_{j+1}\Big)},
 \quad
-\left|E(\mathbf{q}_k)\right| \le \frac{(b-a)}{2880}h^4\text{max}\left|\mathbf{q}^{(4)}\left(\mathbf{x}\right)\right|.
-\end{split}
+\left|E(\mathbf{q}_k)\right| \le \frac{t_k - t_0}{180}h^4\max_t\left|\mathbf{q}^{(4)}(t)\right|.
 \]
-The resulting trajectories are passed as objects $\mathbf{X}_i = (\mathbf{q},\dot{\mathbf{q}})(t)_i$ and features $\mathbf{Y}_i = \ddot{\mathbf{q}}(t)_i$. The neural network presented in \cite{article} is trained on the $i$-th trajectory separately and an estimate of the Lagrangian $\hat{L}_i$, mapped to the $i$-th trajectory is obtained. his Lagrangian, defines the dynamical system and allows to recover the acceleration $\ddot{\mathbf{q}}(t)_i$. This yields a set of objects $\hat{L}_i$, and a set of labels $y_i$, where $y_i$ is the trajectory class $X_i$.
+The continuous recording of one activity of one subject is then split into non-overlapping segments of $500$ ticks, which corresponds to $5$~s of motion. This length is a compromise: it covers several periods of the slowest of the four gaits, and it is short enough for the motion to be treated as a single stationary regime described by one Lagrangian. The segmentation of the four selected activities of the nine subjects yields $N = 1372$ trajectories.
 
+The resulting trajectories are passed as objects $X_i = (\mathbf{q},\dot{\mathbf{q}})(t)_i$ and targets $Y_i = \ddot{\mathbf{q}}(t)_i$. Both are rescaled by the maximum absolute value per channel. The neural network presented in~\cite{article} is trained on the $i$-th trajectory separately and an estimate of the Lagrangian $\hat{L}_i$, mapped to the $i$-th trajectory, is obtained. This Lagrangian defines the dynamical system and allows recovery of the acceleration $\ddot{\mathbf{q}}(t)_i$. This yields a set of objects $\hat{L}_i$ and a set of labels $y_i$, where $y_i$ is the class of the trajectory $X_i$.
 
-As a visualization and evaluation of trajectory recovery with the necessary precision, LNN predictions of acceleration $\ddot{\mathbf{q}}(t)$ for trajectories $(\mathbf{q}, \dot{\mathbf{q}})(t)$ were constructed
-and compared with the real ones.
+\subsection{Recovery of the Lagrangians}
+The network $\hat{L}(\cdot \mid \mathbf{w})$ maps the $2r = 18$ inputs to a scalar. It consists of an input layer $\mathbb{R}^{18} \to \mathbb{R}^{100}$ followed by the Softplus activation, two residual blocks, each of which applies Softplus and a linear layer $\mathbb{R}^{100} \to \mathbb{R}^{100}$ and adds the result to its input, and a linear output layer $\mathbb{R}^{100} \to \mathbb{R}$ with a residual connection. The Softplus activation is used because the model~\eqref{eq:euler_larange_to_acc} requires the second derivatives of the output with respect to the input. The derivatives $A(\hat{L})$ and $\mathbf{H}(\hat{L})$ are computed by the forward-over-reverse automatic differentiation.
+
+Every trajectory is fitted independently by the loss function~\eqref{eq:loss_total} with the Adam optimizer, the learning rate $10^{-3}$, the weight decay $10^{-2}$, the batch size $512$ and $1000$ epochs. In contrast to~\cite{article}, the additional regularization~\eqref{eq:loss_soft} is used. In the regions where the eigenvalues of the Hessian~$\mathbf{H}$ tend to zero the equilibrium point is unstable and the reconstructed trajectories show non-physical oscillations, therefore the term~\eqref{eq:loss_soft} penalizes small eigenvalues. Its hyperparameters are adjusted depending on the type of data; for this dataset $\alpha = 5$ and $\beta = 12$ are selected, which places the minimum of the barrier at $\lambda \approx 1.11$. Fitting one trajectory takes about a minute on a single GPU, and the whole set of $1372$ trajectories is processed in about a day.
+
+As a visualization and an evaluation of the trajectory recovery with the necessary precision, the LNN predictions of the acceleration $\ddot{\mathbf{q}}(t)$ for the trajectories $(\mathbf{q}, \dot{\mathbf{q}})(t)$ were constructed
+and compared with the measured ones.
 
 \begin{figure}[!htbp]
  \centering{
@@ -616,52 +643,30 @@ and compared with the real ones.
 Figures \ref{fig: trajectory}, \ref{fig: learning_rate} show that the trajectories are exactly reconstructed by their Lagrangian, and we can predict them over a sufficiently large time interval, the losses on the test and training
 samples are close, and the trajectories retain their appearance. This means that, according to the assumption, the Lagrangian space is a hidden space from which all trajectories are generated.
 
-Thus~$\hat{L}_i$ vectorizes the~$X_i$ data for further classification. In the remark to lemma \ref{lemma2}, a norm
-on the Lagrangian space is introduced, which represents it as a Hilbert space. Finally, the vectorization is taken from Remark \ref{remark3} in which the Lagrangian space is projected onto the Euclidean space $\mathbb{R}^n$. The vectorization of a trajectory corresponds to the vectorization of their
-Lagrangians.
+Thus $\hat{L}_i$ vectorizes the data $X_i$ for further classification. The seminorm on the Lagrangian space is introduced in~\eqref{eq:seminorm}, and the vectorization follows Remark~\ref{remark3}, in which the Lagrangian space is projected onto the Euclidean space~$\mathbb{R}^{n}$. The vectorization of a trajectory is the vectorization of its Lagrangian.
 
-In contrast to \cite{article} , an additional regularization of the loss function is proposed.
-Since in the regions where the eigenvalues of the Hessian
-\[
-\mathbf{H} = \left(\nabla_{\dot{\mathbf{q}}\dot{\mathbf{q}}} L\right)_{i j}=\frac{\partial^{2} L}{\partial \dot{q_{j}} \partial \dot{q}_{i}}
-\]
-tend to 0 the point of equilibrium is unstable, and the trajectories show nonphysical oscillations. Therefore, we introduce an additional term 
-\[
-\mathcal{L}_\text{restriction} =  \sum \alpha a(\beta(1 - \lambda(\mathbf{H})_i), 
-\]
-where~$a$ is some linear activation function, the best fit was %
-$a = \text{SiLU} = x\sigma(x)$. The hyperparameters $\alpha, \beta$ are adjusted depending on the type of data, for this dataset~$\alpha = 5, \beta = 12$ are selected.
+\subsection{Vectorization and classification}
+For the resulting estimate of the Lagrangian, the function values can be sampled at any point $(\mathbf{q},\dot{\mathbf{q}})$ of the phase space. Accordingly, the seminorm on the basis of which the metric is constructed is sampled, and the basic algorithms classify the trajectories with respect to this metric.
 
-For the resulting Lagrangian estimator, we can sample the function values in any point $(\mathbf{q},\dot{\mathbf{q}})$. Accordingly, the norm on the basis of which the metric is constructed is sampled, and based on this metric, the underlying algorithms classify the trajectories.
+Therefore we first fix the set of points at which the values are computed. This set is chosen before the classification and is the same for all the trajectories, so it is a hyperparameter of the classifier. We draw the set $S = \{\mathbf{s}_i\}_{i=1}^{N}$ of $N = 20\,000$ points $(\mathbf{q},\dot{\mathbf{q}})$ from the uniform distribution on the cube $-10 \le x_j \le 10$, $j = 1, \dots, 18$. The size of the cube is chosen so that it covers the region visited by the rescaled trajectories on which the Lagrangians are fitted. The number of the probe points is chosen so that the estimate of the seminorm varies weakly with respect to the resampling of the set~$S$.
 
-Therefore, we first obtain a set of points at which the Lagrangian values are obtained. This
-set is obtained before classification, and it is the same for all trajectories. Therefore, it is a
-hyperparameter for the classifier. We obtain the set~$S = \{s_i\}$ of $N = 20000$ points $(\mathbf{q},\dot{\mathbf{q}})$ uniformly distributed on a cube~$-10 \le {x_i} \le 10$. Size
-the cube is chosen so that it covers the points on which the Lagrangians are trained. The number of points for sampling should be chosen so that the estimate of the norm varies weakly
-compared to its estimate.
+For each object the features $X_i = \{A(\hat{L}_i)(\mathbf{s}_j)\}_{j=1}^{N}$ are obtained. Since $A(\hat{L})$ takes values in~$\mathbb{R}^{r}$ with $r = 9$, the feature vector of one trajectory has $rN = 180\,000$ components. By~\eqref{eq:l2_norm_approx_main} the seminorm in the Lagrangian space corresponds, up to the factor $\mu(\Omega)/N$, to the usual Euclidean norm in this feature space, so any vector classifier is applicable.
 
-For each object, the values~$X_i = \{AL(s_i)\}$ set of its features are obtained. The norm in this space corresponds to the usual Euclidean norm, and the basic algorithms of veto classification are used to classify objects in this space. We propose to classify objects by their features, i.e.,
-sampled norm values.
-
-To regularize the model and reduce dimensionality, we apply Principal Component Analysis and select the first three principal components in 2D and 3D plots in the Figures~\ref{fig:2D} and~\ref{fig:3D}. 
-The data are separated into clusters. They visually fit the normal distribution so we use the Gaussian kernel in metric classifiers. The clusters are separated by linear surfaces in the presented Lagrangian space. 
+To regularize the model and to reduce the dimensionality, we apply the principal component analysis to the obtained features. The first two and the first three principal components are shown in Figures~\ref{fig:2D} and~\ref{fig:3D}. The data are separated into clusters, one per class. The clusters visually fit the normal distribution, so we use the Gaussian kernel in the metric classifiers. The clusters are separated by linear surfaces in the presented Lagrangian space, which confirms the compactness hypothesis for this dataset.
 
 \begin{figure}[!htbp]
 \centering\includegraphics[scale = 0.5]{Data.pdf}
-\caption{Projection of the Lagrangian estimates of $\hat{L}$ on a 2D-surface}
+\caption{Projection of the Lagrangian estimates $\hat{L}$ onto the first two principal components for the four classes of the experiment: standing, walking, running, cycling}
 \label{fig:2D}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering\includegraphics[scale = 0.4]{Data_3D.pdf}
-\caption{Projection of the Lagrangian estimates of~$\hat{L}$ on a 3D-surface}
+\caption{Projection of the Lagrangian estimates~$\hat{L}$ onto the first three principal components for the same four classes}
 \label{fig:3D}
 \end{figure}
 
-The Random forest classifier was chosen for the study because it works well with any complex
-datasets, linear regression and Gaussian process as simple enough classifiers that learn quickly
-and therefore it is useful to know if they work on a dataset, and SVC with a Gaussian kernel
-because visual analysis assumes that the data are normally distributed.
+The following classifiers are applied to the obtained representation. The random forest is chosen because it works well with complex datasets; the logistic regression and the Gaussian process classifier are chosen as simple models that are fitted quickly, so that it is useful to know whether they already solve the problem; the support vector classifier and the $k$~nearest neighbours are the metric methods that use the induced metric directly; the Gaussian kernel is used in them because the visual analysis of Figures~\ref{fig:2D} and~\ref{fig:3D} suggests that the classes are normally distributed. The sample of $1372$ trajectories is split into the training and the test parts in the proportion $80:20$ with a fixed random seed. The values in Table~\ref{table:classifictors} are the means and the standard deviations over the $5$-fold cross-validation on the training part.
 
 \begin{figure}[!htbp]
  \centering
@@ -671,30 +676,44 @@ components}
  \label{fig: Accuracy}
 \end{figure}
 
-The Gaussian process classifier shows the best results according to all metrics in comparison to the rest of the models. The Metric classifiers, SVC and K-nearest neighbors, show similar results. Surprisingly, the logistic regression classifier recedes in accuracy, when the number of components is bigger than~$25$.  Among the the widely-used time series classification methods, the random forest classifier,  TimeSeriesForestClassifier from the Sktime library shows the accuracy $78\%$. It is much worse than the~LNN classifier. So, we select the Gaussian process classifier. 
+The Gaussian process classifier shows the best results according to all the metrics in comparison to the rest of the models. The metric classifiers, the support vector classifier and the $k$~nearest neighbours, show similar results. The logistic regression classifier loses in accuracy when the number of the principal components is larger than~$25$, which is explained by the growth of the variance of the estimate of the separating hyperplane in the directions with a small explained variance. Among the widely-used time series classification methods, the TimeSeriesForestClassifier from the sktime library, applied to the raw gyroscope channels of the same trajectories, shows the accuracy $0.78$, which is considerably worse than the accuracy of the proposed representation. Therefore we select the Gaussian process classifier. A comparison with the modern convolution-based and deep classifiers, ROCKET~\cite{ROCKET}, MultiRocket~\cite{MultiRocket} and InceptionTime~\cite{InceptionTime}, is the subject of a separate study and is discussed in Section~\ref{sec:conclusion}.
 
 \begin{table}[!htbp]
-    \caption{Result of classifiers on the proposed data vectorization}
+    \caption{Accuracy of the classifiers on the proposed vectorization of the trajectories, the four-class problem, mean $\pm$ standard deviation over the $5$-fold cross-validation}
     \centering
     \begin{tabular}{|l|lll|}
     \hline
     \multicolumn{1}{|c|}{\multirow{2}{*}{Classifier}} & \multicolumn{3}{c|}{Metric}                                                                     	\\ \hhline{~---} 
     \multicolumn{1}{|c|}{}                               & \multicolumn{1}{l|}{Accuracy}         & \multicolumn{1}{l|}{Balanced-accuracy} & F1-macro        \\ \hline
+%   NOTE: please verify the two standard deviations in this row: 0.13 and 0.14 are an order of
+%   magnitude larger than every other value in the table and look like a lost leading zero.
     Logistic regression                              & \multicolumn{1}{l|}{$0.927 \pm  0.014$} & \multicolumn{1}{l|}{$0.924 \pm 0.13$}    & $0.927 \pm 0.14$  \\ \hline
     \textbf{Gaussian process}                                  & \multicolumn{1}{l|}{$\mathbf{0.946} \pm \mathbf{0.010}$}  & \multicolumn{1}{l|}{$\mathbf{0.941} \pm \mathbf{0.011}$}   & $\mathbf{0.946} \pm \mathbf{0.010}$ \\ \hline
     Random forest                                        & \multicolumn{1}{l|}{$0.932 \pm 0.007$}  & \multicolumn{1}{l|}{$0.928 \pm 0.008$}   & $0.933 \pm 0.008$ \\ \hline
     K-nearest neighbors                                  & \multicolumn{1}{l|}{$0.939 \pm 0.009$}  & \multicolumn{1}{l|}{$0.935 \pm 0.010$}   & $0.940 \pm 0.008$ \\ \hline
-    SVC with Gaussian kernel                             & \multicolumn{1}{l|}{$0.933 \pm 0.012$}  & \multicolumn{1}{l|}{$0.927 \pm 0.01$3}   & $0.933 \pm 0.011$ \\ \hline
+    SVC with Gaussian kernel                             & \multicolumn{1}{l|}{$0.933 \pm 0.012$}  & \multicolumn{1}{l|}{$0.927 \pm 0.013$}   & $0.933 \pm 0.011$ \\ \hline
     \end{tabular}
     \label{table:classifictors}
 \end{table}
 
-\section{Conclusion}
+\section{Conclusion} \label{sec:conclusion}
 
-The method provides a convenient way to project the data onto a plane for further visualization. Visual analysis of the plots shows that the represented Lagrangian space corresponds to the space of features that define a class of trajectories, i.e., they determine the type of motion. Similar results are shown by training linear models on the given vector space, the graphs show that linear models separate the classes represented in the dataset with an accuracy of 0.95. At the same time, the proposed vectorization is time-consuming and requires tuning the regularization parameters to achieve the necessary approximation accuracy on specific sets of trajectories.
+The paper proposes to classify multivariate time series of a mechanical system by the dynamic system that generates them rather than by the measurements themselves. The trajectory is mapped to the Lagrangian of the system, the Lagrangian is recovered by a Lagrangian neural network, and the classification is performed in the space of Lagrangians.
 
-Approximation of trajectories with dynamic system Lagrangians is a powerful tool for trajectory classification. It has many advantages over classification methods which do not use information about the physics of the system. This method is multivariate, there is no need to make  assumptions about the relationship between different components of trajectories. It is robust to changes in the data due to the proposed way of Lagrangian approximation. The proposed time series representation preserves assumptions about the physical nature of the signal measurements.
-\textbf{}
+The theoretical part of the paper introduces a seminorm on this space, built from the two coefficients of the Euler-Lagrange system~\eqref{eq:linear_equation_acc}, the operator $A(L)$ and the Hessian~$\mathbf{H}(L)$. Both operators are linear in the Lagrangian, so the functional is a seminorm and the quotient by its kernel is a normed space. Remark~\ref{remark:gauge} shows that this kernel is exactly the classical gauge freedom of the Lagrangian, the total time derivative of a function of the coordinates, so the construction does not introduce a new equivalence but gives a way to compute the classical one from the values of a neural network. Theorem~\ref{lemmaeq} shows that the Lagrangians which are equivalent with respect to the seminorm generate the same accelerations, and that the converse holds once the scale of the Lagrangian is fixed. Theorems~\ref{main_theorem} and~\ref{r_theorem} give the conditions under which the compactness hypothesis is inherited by the finite-dimensional projection, which justifies the sampling of the seminorm at a fixed set of probe points.
+
+The computational part shows that the construction is workable. The Lagrangian neural network reconstructs the accelerations of the PAMAP2 trajectories with the losses on the training and the test parts close to each other, Figures~\ref{fig: trajectory} and~\ref{fig: learning_rate}. The sampled values of $A(\hat{L})$ give a fixed-length representation of a trajectory. The method provides a convenient way to project the data onto a plane for visualization: the visual analysis of Figures~\ref{fig:2D} and~\ref{fig:3D} shows that the represented Lagrangian space corresponds to the space of features that determine the type of the motion, and the classes form compact clusters separated by linear surfaces. On the four-class problem the Gaussian process classifier reaches the accuracy $0.946$, and all the five classifiers considered, including the linear one, stay above $0.92$, whereas the TimeSeriesForestClassifier applied to the same raw series reaches $0.78$. The representation is intrinsically multivariate: no assumptions about the relationship between the components of a trajectory are required, since all the components enter one vector of the generalized coordinates. It also preserves the physical meaning of the measurements, because every feature is the value of a differential operator applied to the reconstructed Lagrangian.
+
+The approach has three limitations, which determine the directions of the further work.
+
+First, and most important, the Lagrangian of every trajectory is currently recovered by a separate optimization problem. A new Lagrangian neural network is initialized and fitted for each segment, both at the training and at the test stage, so the cost of the inference on a previously unseen trajectory equals the cost of solving an ODE-constrained optimization problem, about a minute of GPU time per segment in our setting. This is acceptable for an offline study, but it is prohibitive for the real-time monitoring, which is the natural application of the activity recognition. The classifier itself is fast; the bottleneck is entirely in the map $p(L \mid X)$ from a trajectory to its Lagrangian. The natural way to remove it is to learn this map once, as an operator that takes a trajectory and returns the Lagrangian, instead of solving an optimization problem for every trajectory. The operator learning methods, DeepONet~\cite{DeepONet} and its latent-space modifications designed for the real-time prediction of the dynamics of physical systems~\cite{LatentDeepONet}, are the appropriate tools: they are trained once on a set of trajectories and then evaluated by a single forward pass, so a trajectory becomes a point in the input space of the operator rather than a separate learning task. This extension is a natural continuation of the present work, but the operator learning is outside the scope of this paper, whose subject is the structure of the Lagrangian space and the classification in it.
+
+Second, the vectorization is sensitive to the setting of the regularization: the hyperparameters $\alpha$ and $\beta$ of the penalty~\eqref{eq:loss_soft} have to be tuned to reach the required approximation accuracy on a particular set of trajectories, and the scale of the recovered Lagrangian is fixed only up to the choice of the bound in~\eqref{eq:opt_task_rest}. An automatic selection of these hyperparameters, for example from the condition number of $\mathbf{H}(\hat{L})$ observed during the fitting, would make the method easier to reproduce.
+
+Third, the empirical evaluation should be extended in two directions. The stability of the representation with respect to the non-physical perturbations 
+of the measurements, additive noise, time warping and sensor dropout, is a plausible consequence of the fact that the representation is built from the e
+quations of motion rather than from the waveform, but it is a hypothesis until it is measured; the corresponding ablation study, 
+with the perturbations applied to the test trajectories and with the augmented training sets, is left for the further work. The second direction is the comparison with the modern multivariate time series classifiers announced in Section~\ref{sec:experiment}, which is required to position the method among the state-of-the-art approaches.
 
 \bibliography{lnn-bibliography}
 
