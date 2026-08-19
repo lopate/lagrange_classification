@@ -1,15 +1,15 @@
 # Fdb version 4
-["bibtex jmlda-template-eng"] 1786993311.02958 "jmlda-template-eng.aux" "jmlda-template-eng.bbl" "jmlda-template-eng" 1786993312.67772 0
+["bibtex jmlda-template-eng"] 1787158964.57157 "jmlda-template-eng.aux" "jmlda-template-eng.bbl" "jmlda-template-eng" 1787158966.38231 0
   "./lnn-bibliography.bib" 1786992780.88371 13062 6b95ed36ac54190a48939ccfe5c71e20 ""
   "./sn-mathphys-num.bst" 1783878317.61696 64141 2560fd4f8e8321a304f732d035eb1b51 ""
-  "jmlda-template-eng.aux" 1786993312.26766 10656 a63bf5298cc8bd70986ce5827cdb126d "pdflatex"
+  "jmlda-template-eng.aux" 1787158966.01856 10702 f777d60b17c4be48d00c152f0bef7027 "pdflatex"
   (generated)
   "jmlda-template-eng.bbl"
   "jmlda-template-eng.blg"
   (rewritten before read)
-["pdflatex"] 1786993311.15882 "/home/sasha/lagrange_classification/paper/jmlda-template-eng.tex" "jmlda-template-eng.pdf" "jmlda-template-eng" 1786993312.67791 0
+["pdflatex"] 1787158964.6944 "/home/sasha/lagrange_classification/paper/jmlda-template-eng.tex" "jmlda-template-eng.pdf" "jmlda-template-eng" 1787158966.38247 0
   "/etc/texmf/web2c/texmf.cnf" 1766213201.13178 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/sasha/lagrange_classification/paper/jmlda-template-eng.tex" 1786993309.11166 75598 64e1682fe492ef8ba1a91797cba248c2 ""
+  "/home/sasha/lagrange_classification/paper/jmlda-template-eng.tex" 1787158962.55856 75044 e4b6f1a84159466a9e8c930c2bc90abe ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx0800.tfm" 1136768653 3584 269b66e921ba58750c12f7f1c8ea3ebd ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecbx0900.tfm" 1136768653 3584 1a7de6c99457381c64abc1a7c545505f ""
@@ -348,10 +348,10 @@
   "figures/experiment4_1000.pickle_loss.pdf" 1783878317.86496 105993 01850cdb9fe0c0400a86fab0a182b2f2 ""
   "figures/experiment4_1000.pickle_results_a.pdf" 1783878317.86896 132250 08b9c94aeb2bf00394d90c4d5bd4eab3 ""
   "figures/experiment4_1000.pickle_results_b.pdf" 1783878317.87296 132240 60d27bbe4a3671e1c069e0e9e4171fb0 ""
-  "jmlda-template-eng.aux" 1786993312.26766 10656 a63bf5298cc8bd70986ce5827cdb126d "pdflatex"
-  "jmlda-template-eng.bbl" 1786993311.14766 15562 f1fccbd2af254b642b4d579c5759da6d "bibtex jmlda-template-eng"
-  "jmlda-template-eng.out" 1786993312.27166 2559 1035815829d8e90e721fe162454b0041 "pdflatex"
-  "jmlda-template-eng.tex" 1786993309.11166 75598 64e1682fe492ef8ba1a91797cba248c2 ""
+  "jmlda-template-eng.aux" 1787158966.01856 10702 f777d60b17c4be48d00c152f0bef7027 "pdflatex"
+  "jmlda-template-eng.bbl" 1787158964.68256 15562 f1fccbd2af254b642b4d579c5759da6d "bibtex jmlda-template-eng"
+  "jmlda-template-eng.out" 1787158966.01856 2559 1035815829d8e90e721fe162454b0041 "pdflatex"
+  "jmlda-template-eng.tex" 1787158962.55856 75044 e4b6f1a84159466a9e8c930c2bc90abe ""
   "sn-jnl.cls" 1783878317.49696 55331 d7cf5cb282c5c6c90059534004dcdf13 ""
   (generated)
   "jmlda-template-eng.aux"

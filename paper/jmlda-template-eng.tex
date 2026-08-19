@@ -585,13 +585,10 @@ classes, to confirm in practice the theory that the Lagrangian space can be norm
 proposed seminorm and sampled by a predetermined set of points, and to construct a classifier using
 it.
 
+NOT IMPLEMENTED
 
-%%% TODO (not implemented yet): the benchmark announced in the paragraph above.
-%%% Run ROCKET / MiniRocket / MultiRocket / InceptionTime and, if feasible, HIVE-COTE 2.0
-%%% on the full 12-class PAMAP2 protocol, and replace the sentence "is the subject of a
-%%% separate experimental study" by the reported numbers. The matching paragraph in
-%%% Section 8 and item 3.3 of response-to-reviewers.md must be rewritten at the same time.
-
+A benchmark against the modern multivariate time series classifiers, ROCKET~\cite{ROCKET}, MiniRocket~\cite{MiniRocket}, MultiRocket~\cite{MultiRocket},
+InceptionTime~\cite{InceptionTime} and the ensembles reported in the recent large-scale comparison~\cite{BakeOffRedux}, on the full $12$-class protocol of PAMAP2.
 \subsection{Dataset} \label{sec:dataset}
 The study was conducted on the Physical Activity Monitoring (PAMAP2) dataset~\cite{misc_pamap2_physical_activity_monitoring_231}. The dataset was collected from $M = 9$ subjects, eight men and one woman, aged $27.2 \pm 3.3$ years. Each subject wore three inertial measurement units and a heart rate monitor. The units are placed on the wrist of the dominant arm, on the chest, and on the ankle of the dominant side. Each unit provides a three-axis accelerometer with two ranges, a three-axis gyroscope, a three-axis magnetometer and a temperature sensor, all sampled at the frequency $100$~Hz, which corresponds to the time step $h = 0.01$~s. The dataset consists of two parts. The protocol part, which is used here, contains $12$ activities performed by every subject: lying, sitting, standing, ironing, vacuum cleaning, ascending stairs, descending stairs, walking, Nordic walking, cycling, running, and rope jumping. Each activity lasts $2$--$4$ minutes. The optional part contains six additional activities performed by a part of the subjects only and is not used.
 
@@ -676,7 +673,13 @@ components}
  \label{fig: Accuracy}
 \end{figure}
 
-The Gaussian process classifier shows the best results according to all the metrics in comparison to the rest of the models. The metric classifiers, the support vector classifier and the $k$~nearest neighbours, show similar results. The logistic regression classifier loses in accuracy when the number of the principal components is larger than~$25$, which is explained by the growth of the variance of the estimate of the separating hyperplane in the directions with a small explained variance. Among the widely-used time series classification methods, the TimeSeriesForestClassifier from the sktime library, applied to the raw gyroscope channels of the same trajectories, shows the accuracy $0.78$, which is considerably worse than the accuracy of the proposed representation. Therefore we select the Gaussian process classifier. A comparison with the modern convolution-based and deep classifiers, ROCKET~\cite{ROCKET}, MultiRocket~\cite{MultiRocket} and InceptionTime~\cite{InceptionTime}, is the subject of a separate study and is discussed in Section~\ref{sec:conclusion}.
+The Gaussian process classifier shows the best results according to all the metrics in comparison to 
+the rest of the models. The metric classifiers, the support vector classifier and the $k$~nearest neighbours, show similar results. 
+The logistic regression classifier loses in accuracy when the number of the principal components is larger than~$25$,
+ which is explained by the growth of the variance of the estimate of the separating hyperplane in the directions with a small explained variance. 
+ Among the widely-used time series classification methods, the TimeSeriesForestClassifier from the sktime library, 
+ applied to the raw gyroscope channels of the same trajectories, shows the accuracy $0.78$, which is 
+ considerably worse than the accuracy of the proposed representation. Therefore we select the Gaussian process classifier. 
 
 \begin{table}[!htbp]
     \caption{Accuracy of the classifiers on the proposed vectorization of the trajectories, the four-class problem, mean $\pm$ standard deviation over the $5$-fold cross-validation}
@@ -713,7 +716,7 @@ Second, the vectorization is sensitive to the setting of the regularization: the
 Third, the empirical evaluation should be extended in two directions. The stability of the representation with respect to the non-physical perturbations 
 of the measurements, additive noise, time warping and sensor dropout, is a plausible consequence of the fact that the representation is built from the e
 quations of motion rather than from the waveform, but it is a hypothesis until it is measured; the corresponding ablation study, 
-with the perturbations applied to the test trajectories and with the augmented training sets, is left for the further work. The second direction is the comparison with the modern multivariate time series classifiers announced in Section~\ref{sec:experiment}, which is required to position the method among the state-of-the-art approaches.
+with the perturbations applied to the test trajectories and with the augmented training sets, is left for the further work.
 
 \bibliography{lnn-bibliography}
 
